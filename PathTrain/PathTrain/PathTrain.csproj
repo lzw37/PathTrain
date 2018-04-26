@@ -230,7 +230,12 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\TrainDiagram\train-diagram.action.js" />
+    <Content Include="Scripts\TrainDiagram\train-diagram.view.js" />
+    <Content Include="Scripts\TrainDiagram\train-diagram.model.js" />
+    <Content Include="Scripts\TrainDiagram\train-diagram.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="train_diagram_test_page.html" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
