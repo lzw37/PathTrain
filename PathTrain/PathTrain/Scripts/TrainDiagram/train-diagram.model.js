@@ -16,10 +16,10 @@ function Line(id, name) {
 
 // Station: Railway stations, which are represented by horizontial lines in the train diagram.
 
-function Station(id, name, line_id, sequence, miles) {
+function Station(id, name, lineId, sequence, miles) {
     this.id = id;
     this.name = name;
-    this.line_id = line_id;
+    this.lineId = lineId;
     this.sequenct = sequence;
     this.miles = miles;
 }
