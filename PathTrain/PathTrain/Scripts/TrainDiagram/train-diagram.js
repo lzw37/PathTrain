@@ -5,7 +5,7 @@ var cxt = c.getContext("2d");
 
 // Fill the background
 
-cxt.fillStyle = "#FFFFFF";
+cxt.fillStyle = "#FF0000";
 c.clientWidth
 cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
 
@@ -31,4 +31,4 @@ function input_data_handler() {
 // The main procedure..
 
 input_data_handler();
-display(cxt);
+display();
