@@ -1,7 +1,14 @@
 ﻿// Define the display style of the whole diagram
 
 function DisplayStyle() {
+    this.styleName = 'Default';
 
+    this.stationViewStyle = {
+        'normal': {
+            'color': '#009900',
+            'width': '1',
+        }
+    }
 }
 
 
@@ -11,6 +18,8 @@ function Frame(size) {
     this.size = size;  // The size of the canvas client rectangle.
 
     this.blockList = [];  // The block list.
+
+    this.style = new DisplayStyle();
 
     this.margin = {  // Margin parameters of the panorama view.
         left: 30,
@@ -40,14 +49,14 @@ function Frame(size) {
 
     // The coordinates of the original point.
     this.orgPosition = {
-        X: 0,
-        Y: 0,
+        X: 20,
+        Y: 20,
     }
 
     // Transfer parameters between pixels and specific values.
     this.zoomRatio = {
         horizontial: 1,  // pixel per minute
-        vertical: 1.2, // pixel per miles
+        vertical: 1.8, // pixel per miles
     } 
 }
 
@@ -58,7 +67,7 @@ function Block() {
     this.stationViewList = [];  // Station view list of the block.
 
     // Position attributes
-    this.margin = 10;  // Margin size for this block in the top and the bottom.
+    this.margin = 80;  // Margin size for this block in the top and the bottom.
     this.top = 0;
     this.bottom = 0;
     this.left = function () {
@@ -82,6 +91,14 @@ function Block() {
             this.stationViewList[s].draw(cxt);
         }
     }
+}
+
+
+// TimeLine: a view object of the time line in the diagram
+
+function TimeLine() {
+    this.time = '00:00:00';
+    this.X = 0;
 }
 
 
@@ -110,6 +127,9 @@ function StationView(stationObj, block, sequence) {
 
     // Draw the current station view.
     this.draw = function (cxt) {
+        var currentStationViewStyle = frame.style.stationViewStyle['normal'];
+        cxt.lineWidth = currentStationViewStyle['width'];
+        cxt.strokeStyle = currentStationViewStyle['color'];
         cxt.moveTo(this.left(), this.Y);
         cxt.lineTo(this.right(), this.Y);
         cxt.stroke();

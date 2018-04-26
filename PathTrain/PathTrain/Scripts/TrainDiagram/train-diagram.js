@@ -6,7 +6,7 @@ var cxt = c.getContext("2d");
 
 // Fill the background
 
-cxt.fillStyle = "#FF0000";
+cxt.fillStyle = "#e5f7ff";
 c.clientWidth
 cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
 
@@ -32,10 +32,18 @@ function input_data_handler() {
     staView = new StationView(sta, b1, 2);
     b1.stationViewList.push(staView);
 
-    sta = new Station('3', 'WuHan', '0', '3', '110.0');
+    var b2 = new Block();
+    frame.blockList.push(b2);
+
+    sta = new Station('3', 'WuHan', '0', '0', '0');
     model.station_map['3'] = sta;
-    staView = new StationView(sta, b1, 3);
-    b1.stationViewList.push(staView);
+    staView = new StationView(sta, b2, 0);
+    b2.stationViewList.push(staView);
+
+    sta = new Station('4', 'ChangshaNan', '0', '1', '30.0');
+    model.station_map['4'] = sta;
+    staView = new StationView(sta, b2, 1);
+    b2.stationViewList.push(staView);
 }
 
 
