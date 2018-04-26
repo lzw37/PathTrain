@@ -1,7 +1,11 @@
-﻿function DisplayStyle() {
+﻿// Define the display style of the whole diagram
+
+function DisplayStyle() {
 
 }
 
+
+// The frame of the whole diagram
 
 function Frame() {
     this.margin = [0, 0, 0, 0];  // [left, top, right, bottom]
@@ -17,6 +21,9 @@ function Block() {
     }
 
 }
+
+
+// StationView: a view object of the station line in the diagram
 
 function StationView(stationObj) {
     this.stationObj = stationObj;
