@@ -8,7 +8,6 @@ function DisplayStyle() {
 // The frame of the whole diagram
 
 function Frame() {
-    this.margin = [0, 0, 0, 0];  // [left, top, right, bottom]
 
 }
 
@@ -36,7 +35,7 @@ function StationView(stationObj) {
 
 // The main function for reflash the diagram
 
-function display(cxt) {
+function display() {
 
     // test messages.
 
@@ -46,11 +45,4 @@ function display(cxt) {
         str += model.station_map[k].name + '\<br />';
     }
     d.innerHTML = str;
-
-    // test drawing.
-
-    cxt.moveTo(10, 10);
-    cxt.lineTo(150, 50);
-    cxt.lineTo(10, 50);
-    cxt.stroke();
 }
