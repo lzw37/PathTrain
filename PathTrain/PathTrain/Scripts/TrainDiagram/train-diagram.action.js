@@ -3,7 +3,8 @@
     var div = document.getElementById('coordinate');
     var x = e.offsetX;
     var y = e.offsetY;
-    div.innerText = 'Current mouse location:(' + x + ',' + y + ').';
+    div.innerText = 'Current mouse location:(' + x + ',' + y + '). ' + 'Time:' + frame.pixelToSecond(x);
+
 
     var isDiagramChanged = false;
     // hit test
@@ -42,6 +43,6 @@ function stationViewHitTest(mouseLocation) {
         }
     }
     if (hitStationView == null)
-        infoDiv.innerText = '';
+        infoDiv.innerText = '..';
     return { 'isStatusChanged': isStatusChanged, 'hitStationView': hitStationView };
 }

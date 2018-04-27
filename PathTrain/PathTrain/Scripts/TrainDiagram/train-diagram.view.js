@@ -9,7 +9,7 @@ function DisplayStyle() {
             'width': '2',
         },
         'hit': {
-            'color': '#000000',
+            'color': ' #00e600',
             'width': '2',
         }
     }
@@ -76,7 +76,7 @@ function Frame(size) {
             return currentFrame.margin.top
         },
         bottom : function () {
-            return currentFrame.size.height - currentFrame.margin.top - currentFrame.margin.bottom
+            return currentFrame.size.height - currentFrame.margin.top - currentFrame.margin.bottom;
         }
     }
 
@@ -88,9 +88,19 @@ function Frame(size) {
 
     // Transfer parameters between pixels and specific values.
     this.zoomRatio = {
-        horizontial: 0.01,  // pixel per second
-        vertical: 1.8, // pixel per miles
-    } 
+        horizontial: 0.016,  // pixel per second
+        vertical: 2.5, // pixel per miles
+    }
+
+    // Transfer pixel value (X coordinate) to seconds. 
+    this.pixelToSecond = function (pixel) {
+        return Math.round((pixel - this.orgPosition.X) / this.zoomRatio.horizontial);
+    }
+
+    // Transfer seconds back to pixel value (X coordinate).
+    this.secondToPixel = function (second) {
+        return Math.round(this.orgPosition.X + this.zoomRatio.horizontial * second) + 0.5;
+    }
 }
 
 
@@ -139,7 +149,7 @@ function TimeLine() {
     // Update the position of the time line.
     this.update = function (time) {
         this.time = time;
-        this.X = Math.round(frame.orgPosition.X + time * frame.zoomRatio.horizontial) + 0.5;
+        this.X = frame.secondToPixel(time);
 
         // Define the line section by blocks.
         for (var k in frame.blockList) {
@@ -169,7 +179,7 @@ function TimeLine() {
         cxt.lineWidth = currentStationViewStyle['width'];
         cxt.strokeStyle = currentStationViewStyle['color'];
         if (this.lineType == '_30min') {  // A 30 min line should be a dashed line.
-            cxt.setLineDash([10]);
+            cxt.setLineDash([5]);
         }
         else {
             cxt.setLineDash([0]);
