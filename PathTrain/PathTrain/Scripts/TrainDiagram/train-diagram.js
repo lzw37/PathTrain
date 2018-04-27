@@ -3,13 +3,10 @@
 var c = document.getElementById("train_diagram");
 var cxt = c.getContext("2d");
 
-
-// Fill the background
-
-cxt.fillStyle = "#e5f7ff";
-c.clientWidth
-cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
-
+frame = new Frame({
+    width: c.clientWidth,
+    height: c.clientHeight,
+});
 
 // Global data handler
 
@@ -49,13 +46,20 @@ function input_data_handler() {
 
 // The main procedure..
 
-frame = new Frame({
-    width: c.clientWidth,
-    height: c.clientHeight,
-});
+
+
+
+function paint() {
+
+
+
+
+    updateView();
+    display(cxt);
+}
 
 input_data_handler();
+paint();
 
-
-updateView();
-display(cxt);
+// test messages.
+document.getElementById('info').innerHTML = "Finished!";

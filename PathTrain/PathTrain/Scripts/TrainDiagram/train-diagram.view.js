@@ -7,6 +7,10 @@ function DisplayStyle() {
         'normal': {
             'color': '#009900',
             'width': '2',
+        },
+        'hit': {
+            'color': '#000000',
+            'width': '2',
         }
     }
 
@@ -84,7 +88,7 @@ function Frame(size) {
 
     // Transfer parameters between pixels and specific values.
     this.zoomRatio = {
-        horizontial: 0.018,  // pixel per second
+        horizontial: 0.01,  // pixel per second
         vertical: 1.8, // pixel per miles
     } 
 }
@@ -132,9 +136,12 @@ function TimeLine() {
     this.lineSection = []; // {startY:value, endY:value}, depending on the position (top and bottom) of each block
     this.lineType = 'default';
 
+    // Update the position of the time line.
     this.update = function (time) {
         this.time = time;
         this.X = Math.round(frame.orgPosition.X + time * frame.zoomRatio.horizontial) + 0.5;
+
+        // Define the line section by blocks.
         for (var k in frame.blockList) {
             var block = frame.blockList[k];
             var lineSection = {
@@ -144,6 +151,7 @@ function TimeLine() {
             this.lineSection.push(lineSection);
         }
 
+        // Define the line type by the time.
         if (time % 3600 == 0) {
             this.lineType = 'hour';
         }
@@ -155,11 +163,12 @@ function TimeLine() {
         }
     }
 
+    // Draw the time line.
     this.draw = function(cxt){
         var currentStationViewStyle = frame.style.timeLineStyle[this.lineType];
         cxt.lineWidth = currentStationViewStyle['width'];
         cxt.strokeStyle = currentStationViewStyle['color'];
-        if (this.lineType == '_30min') {
+        if (this.lineType == '_30min') {  // A 30 min line should be a dashed line.
             cxt.setLineDash([10]);
         }
         else {
@@ -186,6 +195,9 @@ function StationView(stationObj, block, sequence) {
     this.sequence = sequence;
     this.milesInBlock = stationObj.miles;
 
+    // Status attribute
+    this.status = 'normal';
+
     // Position attributes
     this.Y = 0;
     this.left = function () {
@@ -202,7 +214,7 @@ function StationView(stationObj, block, sequence) {
 
     // Draw the current station view.
     this.draw = function (cxt) {
-        var currentStationViewStyle = frame.style.stationViewStyle['normal'];
+        var currentStationViewStyle = frame.style.stationViewStyle[this.status];
         cxt.beginPath();
         cxt.lineWidth = currentStationViewStyle['width'];
         cxt.strokeStyle = currentStationViewStyle['color'];
@@ -211,20 +223,25 @@ function StationView(stationObj, block, sequence) {
         cxt.closePath();
         cxt.stroke();
     }
+
+    // Hit test of the station view.
+    this.hitTest = function (mouseLocation, radius) {
+        if (mouseLocation.Y < this.Y - radius || mouseLocation.Y > this.Y + radius)
+            return false;
+        if (mouseLocation.X < this.left() - radius || mouseLocation.X > this.right() + radius)
+            return false;
+        return true;
+    }
 }
 
 
 // The main function for reflash the diagram
 
 function display(cxt) {
-
-    // test messages.
-    var d = document.getElementById('info');
-    var str = '';
-    for (var k in model.station_map) {
-        str += model.station_map[k].name + '\<br />';
-    }
-    d.innerHTML = str;
+    // Fill the background
+    cxt.fillStyle = "#e5f7ff";
+    c.clientWidth
+    cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
 
     // draw diagram.
     for (var k in frame.blockList) {
@@ -234,9 +251,6 @@ function display(cxt) {
     for (var tl in frame.timeLineList) {
         frame.timeLineList[tl].draw(cxt);
     }
-
-    // test messages.
-    d.innerHTML = "Finished!";
 }
 
 
