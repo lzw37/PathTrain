@@ -6,6 +6,30 @@ function DisplayStyle() {
     this.stationViewStyle = {
         'normal': {
             'color': '#009900',
+            'width': '2',
+        }
+    }
+
+    this.timeLineStepSize = {
+        '_10min': 600,
+        '_60min': 3600,
+    }
+
+    this.timeLineStyle = {
+        'default':{
+            'color': '#009900',
+            'width': '1',
+        },
+        'hour': {
+            'color': '#009900',
+            'width': '2.5',
+        },
+        '_30min': {
+            'color': '#009900',
+            'width': '1',
+        },
+        '_10min': {
+            'color': '#009900',
             'width': '1',
         }
     }
@@ -18,8 +42,13 @@ function Frame(size) {
     this.size = size;  // The size of the canvas client rectangle.
 
     this.blockList = [];  // The block list.
+    this.timeLineList = [];
 
     this.style = new DisplayStyle();
+    
+    this.displaySettings = {
+        timeLineMode: '_10min',
+    }
 
     this.margin = {  // Margin parameters of the panorama view.
         left: 30,
@@ -28,7 +57,7 @@ function Frame(size) {
         bottom: 30,
     };
 
-    this.totalTimeInMinute = 1440;  // The total length of the time horizon (in minutes).
+    this.totalTimeInSecond = 86400;  // The total length of the time horizon (in seconds).
 
     // Full diagram rectangle
     var currentFrame = this;
@@ -55,7 +84,7 @@ function Frame(size) {
 
     // Transfer parameters between pixels and specific values.
     this.zoomRatio = {
-        horizontial: 1,  // pixel per minute
+        horizontial: 0.018,  // pixel per second
         vertical: 1.8, // pixel per miles
     } 
 }
@@ -74,11 +103,12 @@ function Block() {
         return frame.orgPosition.X;
     }
     this.right = function () {
-        return frame.orgPosition.X + frame.totalTimeInMinute * frame.zoomRatio.horizontial;
+        return frame.orgPosition.X + frame.totalTimeInSecond * frame.zoomRatio.horizontial;
     }
 
     // update parameters of the current block and its children elements.
     this.update = function (currentY) {
+        this.top = currentY;
         for (var s in this.stationViewList) {
             this.stationViewList[s].update(currentY);
         }
@@ -97,8 +127,53 @@ function Block() {
 // TimeLine: a view object of the time line in the diagram
 
 function TimeLine() {
-    this.time = '00:00:00';
+    this.time = 0;  // in second
     this.X = 0;
+    this.lineSection = []; // {startY:value, endY:value}, depending on the position (top and bottom) of each block
+    this.lineType = 'default';
+
+    this.update = function (time) {
+        this.time = time;
+        this.X = Math.round(frame.orgPosition.X + time * frame.zoomRatio.horizontial) + 0.5;
+        for (var k in frame.blockList) {
+            var block = frame.blockList[k];
+            var lineSection = {
+                startY: block.top,
+                endY: block.bottom,
+            }
+            this.lineSection.push(lineSection);
+        }
+
+        if (time % 3600 == 0) {
+            this.lineType = 'hour';
+        }
+        else if (time % 1800 == 0) {
+            this.lineType = '_30min';
+        }
+        else if (time % 600 == 0) {
+            this.lineType = '_10min';
+        }
+    }
+
+    this.draw = function(cxt){
+        var currentStationViewStyle = frame.style.timeLineStyle[this.lineType];
+        cxt.lineWidth = currentStationViewStyle['width'];
+        cxt.strokeStyle = currentStationViewStyle['color'];
+        if (this.lineType == '_30min') {
+            cxt.setLineDash([10]);
+        }
+        else {
+            cxt.setLineDash([0]);
+        }
+        for (var s in this.lineSection) {
+            var section = this.lineSection[s];
+            cxt.beginPath();
+            cxt.moveTo(this.X, section.startY);
+            cxt.lineTo(this.X, section.endY);
+            cxt.closePath();
+            cxt.stroke();
+        }
+    }
 }
 
 
@@ -122,16 +197,18 @@ function StationView(stationObj, block, sequence) {
 
     // Update the current station view.
     this.update = function (blockTop) {
-        this.Y = blockTop + frame.zoomRatio.vertical * this.milesInBlock;
+        this.Y = Math.round(blockTop + frame.zoomRatio.vertical * this.milesInBlock) + 0.5;
     }
 
     // Draw the current station view.
     this.draw = function (cxt) {
         var currentStationViewStyle = frame.style.stationViewStyle['normal'];
+        cxt.beginPath();
         cxt.lineWidth = currentStationViewStyle['width'];
         cxt.strokeStyle = currentStationViewStyle['color'];
         cxt.moveTo(this.left(), this.Y);
         cxt.lineTo(this.right(), this.Y);
+        cxt.closePath();
         cxt.stroke();
     }
 }
@@ -154,6 +231,10 @@ function display(cxt) {
         frame.blockList[k].draw(cxt);
     }
 
+    for (var tl in frame.timeLineList) {
+        frame.timeLineList[tl].draw(cxt);
+    }
+
     // test messages.
     d.innerHTML = "Finished!";
 }
@@ -162,7 +243,10 @@ function display(cxt) {
 // Update the whole train diagram.
 
 function updateView() {
-    var currentY = frame.innerRectangle.top();
+
+    // Update the position of blocks and station views.
+
+    var currentY = frame.orgPosition.Y;
 
     for (var k in frame.blockList) {
         var block = frame.blockList[k];
@@ -170,6 +254,13 @@ function updateView() {
         currentY = block.bottom + block.margin;
     }
 
+    // Update the time lines.
+    for (var t = 0; t < frame.totalTimeInSecond;
+        t += frame.style.timeLineStepSize[frame.displaySettings.timeLineMode]) {
+        var tl = new TimeLine();
+        tl.update(t);
+        frame.timeLineList.push(tl);
+    }
 }
 
 
