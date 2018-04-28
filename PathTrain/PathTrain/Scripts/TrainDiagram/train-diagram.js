@@ -41,22 +41,30 @@ function input_data_handler() {
     model.station_map['4'] = sta;
     staView = new StationView(sta, b2, 1);
     b2.stationViewList.push(staView);
+
+    var tr = new Train('G1001', 'G', '0', '4');
+    tr.lineList = [
+    ];
+    tr.timeTable = [
+        new TimeStamp(tr, model.station_map['0'], 100, 'arrive'),
+        new TimeStamp(tr, model.station_map['0'], 120, 'depart'),
+        new TimeStamp(tr, model.station_map['1'], 220, 'arrive'),
+        new TimeStamp(tr, model.station_map['1'], 290, 'arrive'),
+    ];
+    model.train_map[tr.id] = tr;
+    var trView = new TrainView(tr);
+    trView.update();
+    frame.trainViewList.push(trView);
+}
+
+
+function paint() {
+    updateView();
+    display(cxt);
 }
 
 
 // The main procedure..
-
-
-
-
-function paint() {
-
-
-
-
-    updateView();
-    display(cxt);
-}
 
 input_data_handler();
 paint();

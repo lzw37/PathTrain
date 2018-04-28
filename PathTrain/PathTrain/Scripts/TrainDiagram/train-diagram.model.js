@@ -1,8 +1,10 @@
 ﻿// Global data collections
 
 var model = {
+    line_map: {},
     station_map: {},
     segment_map: {},
+    train_map: {},
 }
 
 
@@ -11,6 +13,7 @@ var model = {
 function Line(id, name) {
     this.id = id;
     this.name = name;
+    this.stationList = [];
 }
 
 
@@ -35,6 +38,22 @@ function Segment(from_station_id, to_station_id) {
 
 // Train: Train paths, which are represented by time-space paths on the diagram.
 
-function Train(id) {
+function Train(id, type, originalStationId, destinationStationId) {
     this.id = id;
+    this.type = type;
+    this.lineList = [];  // a sequence of railway lines in the route of the train
+    this.timeTable = [];  // a sequence of objects of time stamp
+    this.originalStationId = originalStationId;
+    this.destinationStationId = destinationStationId;
+
+}
+
+
+// TimeStamp: an object of the train operation time stamp.
+
+function TimeStamp(train, station, time, operation) {
+    this.station = station;
+    this.train = train;
+    this.time = time;
+    this.operation = operation;
 }

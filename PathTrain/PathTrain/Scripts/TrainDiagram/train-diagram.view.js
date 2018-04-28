@@ -20,7 +20,7 @@ function DisplayStyle() {
     }
 
     this.timeLineStyle = {
-        'default':{
+        'default': {
             'color': '#009900',
             'width': '1',
         },
@@ -39,6 +39,23 @@ function DisplayStyle() {
     }
 }
 
+this.trainViewStyle = {
+    color: {
+        'G': {
+            'color': '#009900'
+        },
+        'D': {
+
+        },
+        'F': {
+
+        }
+    },
+    width: {
+
+    },
+}
+
 
 // The frame of the whole diagram
 
@@ -46,10 +63,11 @@ function Frame(size) {
     this.size = size;  // The size of the canvas client rectangle.
 
     this.blockList = [];  // The block list.
-    this.timeLineList = [];
+    this.timeLineList = [];  // The time line list.
+    this.trainViewList = [];  // The train view list.
 
     this.style = new DisplayStyle();
-    
+
     this.displaySettings = {
         timeLineMode: '_10min',
     }
@@ -66,16 +84,16 @@ function Frame(size) {
     // Full diagram rectangle
     var currentFrame = this;
     this.innerRectangle = {
-        left : function(){
+        left: function () {
             return currentFrame.margin.left;
         },
-        right : function () {
+        right: function () {
             return currentFrame.size.width - currentFrame.margin.left - currentFrame.margin.right;
         },
-        top : function(){
+        top: function () {
             return currentFrame.margin.top
         },
-        bottom : function () {
+        bottom: function () {
             return currentFrame.size.height - currentFrame.margin.top - currentFrame.margin.bottom;
         }
     }
@@ -101,6 +119,14 @@ function Frame(size) {
     this.secondToPixel = function (second) {
         return Math.round(this.orgPosition.X + this.zoomRatio.horizontial * second) + 0.5;
     }
+}
+
+
+// LineViewInstructor: define the Station - StationView mapping relations.
+
+function LineViewInstructor(lineObj) {
+    this.lineObj = lineObj;
+    this.stationViewMap = {}  // {Object <Station>: Object <StationView>}
 }
 
 
@@ -174,7 +200,7 @@ function TimeLine() {
     }
 
     // Draw the time line.
-    this.draw = function(cxt){
+    this.draw = function (cxt) {
         var currentStationViewStyle = frame.style.timeLineStyle[this.lineType];
         cxt.lineWidth = currentStationViewStyle['width'];
         cxt.strokeStyle = currentStationViewStyle['color'];
@@ -241,6 +267,46 @@ function StationView(stationObj, block, sequence) {
         if (mouseLocation.X < this.left() - radius || mouseLocation.X > this.right() + radius)
             return false;
         return true;
+    }
+}
+
+
+// TrainView: a view object of a train path
+
+function TrainView(trainObj) {
+    this.trainObj = trainObj;
+    this.stationViewList = [];  // in the drawing sequence
+    this.timeStampViewList = []; // in the drawing sequence
+
+    this.update = function () {
+
+    }
+
+    this.draw = function () {
+
+    }
+}
+
+
+// TimeStampView: a view object of the time label of train operations (arrival or departure)
+
+function TimeStampView(trainView, stationView, timeStamp) {
+    this.stationView = stationView
+    this.trainView = trainView;
+    this.timeStamp = timeStamp;
+
+    this.X = 0;
+    this.Y = 0;
+
+
+    this.update = function () {
+        // ensure the consistancy of the positions for TimeStampView and StationView
+        this.X = frame.secondToPixel(this.timeStamp.time);
+        this.Y = stationView.Y;
+    }
+
+    this.draw = function () {
+
     }
 }
 
