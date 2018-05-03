@@ -37,23 +37,23 @@ function DisplayStyle() {
             'width': '1',
         }
     }
-}
 
-this.trainViewStyle = {
-    color: {
-        'G': {
-            'color': '#009900'
+    this.trainViewStyle = {
+        color: {
+            'G': {
+                'color': '#009900'
+            },
+            'D': {
+
+            },
+            'F': {
+
+            }
         },
-        'D': {
+        width: {
 
         },
-        'F': {
-
-        }
-    },
-    width: {
-
-    },
+    }
 }
 
 
@@ -65,6 +65,7 @@ function Frame(size) {
     this.blockList = [];  // The block list.
     this.timeLineList = [];  // The time line list.
     this.trainViewList = [];  // The train view list.
+    this.stationViewMap = {};  // {stationObj, [{blockID, stationViewID}]}
 
     this.style = new DisplayStyle();
 
@@ -132,7 +133,8 @@ function LineViewInstructor(lineObj) {
 
 // Block: a view object of a independent train diagram block
 
-function Block() {
+function Block(id) {
+    this.id = id;
     this.stationViewList = [];  // Station view list of the block.
 
     // Position attributes
@@ -224,9 +226,11 @@ function TimeLine() {
 
 // StationView: a view object of the station line in the diagram
 
-function StationView(stationObj, block, sequence) {
+function StationView(id, stationObj, lineObj, block, sequence) {
+    this.id = id;
     // Structure attributes
     this.stationObj = stationObj;
+    this.lineObj = lineObj;
     this.block = block;
     this.sequence = sequence;
     this.milesInBlock = stationObj.miles;
@@ -273,17 +277,63 @@ function StationView(stationObj, block, sequence) {
 
 // TrainView: a view object of a train path
 
-function TrainView(trainObj) {
+function TrainView(id, trainObj) {
     this.trainObj = trainObj;
     this.stationViewList = [];  // in the drawing sequence
     this.timeStampViewList = []; // in the drawing sequence
+    this.pathList = [];
 
-    this.update = function () {
+    this.generate = function () {
+        // generate the relative timeStampViewList by the trainObj.timeStampList
+        for (var stampIdx in trainObj.timeTable) {
+            var sta = trainObj.timeTable[stampIdx].station;
+            var staViewList = frame.stationViewMap[trainObj.timeTable[stampIdx].station.id];
+
+            if (staViewList.length == 1) {
+                // only one station view is found.
+                var staView = staViewList[0];
+                this.stationViewList.push(staView);
+
+                var timeStampView = new TimeStampView(this, staView, trainObj.timeTable[stampIdx]);
+                this.timeStampViewList.push(timeStampView);
+            }
+            else {
+                // more than one station views are found.
+                for (l in this.trainObj.lineList) {
+                    for (var svId in staViewList) {
+                        // select the display StationView by the line list.
+                        var staView = staViewList[svId];
+                        if(l == staView.lineObj){
+                            this.stationViewList.push(staView);
+
+                            var timeStampView = new TimeStampView(this, staView, trainObj.timeTable[stampIdx]);
+                            this.timeStampViewList.push(timeStampView);
+                        }
+                    }
+                }
+            }
+        }
+
+        // generate path list.
+        // ... 
+    }
+
+    this.hitTest = function () {
 
     }
 
-    this.draw = function () {
+    this.update = function () {
+        for (var tsvIdx in this.timeStampViewList) {
+            var tsv = this.timeStampViewList[tsvIdx];
+            tsv.update();
+        }
+    }
 
+    this.draw = function () {
+        // draw a sectional path by the time stamps.
+        for (var l in this.pathList){
+            this.pathList[l].draw();
+        }
     }
 }
 
@@ -298,14 +348,44 @@ function TimeStampView(trainView, stationView, timeStamp) {
     this.X = 0;
     this.Y = 0;
 
+    this.hitTest = function () {
+
+    }
 
     this.update = function () {
         // ensure the consistancy of the positions for TimeStampView and StationView
         this.X = frame.secondToPixel(this.timeStamp.time);
-        this.Y = stationView.Y;
+        this.Y = this.stationView.Y;
     }
 
     this.draw = function () {
+
+    }
+}
+
+
+// The running line sections of train paths.
+
+function RunningLine(trainView, foreTimeStampView, rareTimeStampView) {
+    this.trainView = trainView;
+    this.foreTimeStampView = foreTimeStampView;
+    this.rareTimeStampView = rareTimeStampView;
+
+    function draw() {
+
+    }
+
+}
+
+
+// The dwelling line sections of train paths.
+
+function DwellingLine() {
+    this.trainView = trainView;
+    this.foreTimeStampView = foreTimeStampView;
+    this.rareTimeStampView = rareTimeStampView;
+
+    function draw() {
 
     }
 }
@@ -350,6 +430,12 @@ function updateView() {
         var tl = new TimeLine();
         tl.update(t);
         frame.timeLineList.push(tl);
+    }
+
+    // Update train views.
+    for (var trvIdx in frame.trainViewList) {
+        var trView = frame.trainViewList[trvIdx];
+        trView.update();
     }
 }
 

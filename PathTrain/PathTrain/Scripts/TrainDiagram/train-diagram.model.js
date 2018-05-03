@@ -38,14 +38,13 @@ function Segment(from_station_id, to_station_id) {
 
 // Train: Train paths, which are represented by time-space paths on the diagram.
 
-function Train(id, type, originalStationId, destinationStationId) {
+function Train(id, type, originalStation, destinationStation) {
     this.id = id;
     this.type = type;
     this.lineList = [];  // a sequence of railway lines in the route of the train
     this.timeTable = [];  // a sequence of objects of time stamp
-    this.originalStationId = originalStationId;
-    this.destinationStationId = destinationStationId;
-
+    this.originalStation = originalStation;
+    this.destinationStation = destinationStation;
 }
 
 
