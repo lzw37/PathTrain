@@ -30,9 +30,9 @@ function Station(id, name, line_id, sequence, miles) {
 
 // Segment: Railway open track segments, which indicate a railway section between two consecutive stations.
 
-function Segment(from_station_id, to_station_id) {
-    this.from_station_id = from_station_id;
-    this.to_station_id = to_station_id;
+function Segment(from_station, to_station) {
+    this.from_station = from_station;
+    this.to_station = to_station;
 }
 
 

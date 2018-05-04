@@ -62,9 +62,9 @@ function DisplayStyle() {
 function Frame(size) {
     this.size = size;  // The size of the canvas client rectangle.
 
-    this.blockList = [];  // The block list.
+    this.blockMap = {};  // The block list.
     this.timeLineList = [];  // The time line list.
-    this.trainViewList = [];  // The train view list.
+    this.trainViewMap = {};  // The train view list.
     this.stationViewMap = {};  // {stationObj, [{blockID, stationViewID}]}
 
     this.style = new DisplayStyle();
@@ -180,8 +180,8 @@ function TimeLine() {
         this.X = frame.secondToPixel(time);
 
         // Define the line section by blocks.
-        for (var k in frame.blockList) {
-            var block = frame.blockList[k];
+        for (var k in frame.blockMap) {
+            var block = frame.blockMap[k];
             var lineSection = {
                 startY: block.top,
                 endY: block.bottom,
@@ -226,14 +226,14 @@ function TimeLine() {
 
 // StationView: a view object of the station line in the diagram
 
-function StationView(id, stationObj, lineObj, block, sequence) {
+function StationView(id, stationObjId, lineObjId, blockId, sequence) {
     this.id = id;
     // Structure attributes
-    this.stationObj = stationObj;
-    this.lineObj = lineObj;
-    this.block = block;
+    this.stationObj = model.station_map[stationObjId];
+    this.lineObj = model.line_map[lineObjId];
+    this.block = frame.blockMap[blockId];
     this.sequence = sequence;
-    this.milesInBlock = stationObj.miles;
+    this.milesInBlock = this.stationObj.miles;
 
     // Status attribute
     this.status = 'normal';
@@ -281,13 +281,13 @@ function TrainView(id, trainObj) {
     this.trainObj = trainObj;
     this.stationViewList = [];  // in the drawing sequence
     this.timeStampViewList = []; // in the drawing sequence
-    this.pathList = [];
+    this.pathList = [];  // in the drawing sequence. 
 
     this.generate = function () {
         // generate the relative timeStampViewList by the trainObj.timeStampList
         for (var stampIdx in trainObj.timeTable) {
-            var sta = trainObj.timeTable[stampIdx].station;
-            var staViewList = frame.stationViewMap[trainObj.timeTable[stampIdx].station.id];
+            var sta = model.station_map[trainObj.timeTable[stampIdx].station];
+            var staViewList = frame.stationViewMap[sta.id];
 
             if (staViewList.length == 1) {
                 // only one station view is found.
@@ -299,7 +299,8 @@ function TrainView(id, trainObj) {
             }
             else {
                 // more than one station views are found.
-                for (l in this.trainObj.lineList) {
+                for (var lId in this.trainObj.lineList) {
+                    var l = model.line_map[lId];
                     for (var svId in staViewList) {
                         // select the display StationView by the line list.
                         var staView = staViewList[svId];
@@ -400,8 +401,8 @@ function display(cxt) {
     cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
 
     // draw diagram.
-    for (var k in frame.blockList) {
-        frame.blockList[k].draw(cxt);
+    for (var k in frame.blockMap) {
+        frame.blockMap[k].draw(cxt);
     }
 
     for (var tl in frame.timeLineList) {
@@ -418,8 +419,8 @@ function updateView() {
 
     var currentY = frame.orgPosition.Y;
 
-    for (var k in frame.blockList) {
-        var block = frame.blockList[k];
+    for (var k in frame.blockMap) {
+        var block = frame.blockMap[k];
         block.update(currentY);
         currentY = block.bottom + block.margin;
     }
@@ -433,8 +434,8 @@ function updateView() {
     }
 
     // Update train views.
-    for (var trvIdx in frame.trainViewList) {
-        var trView = frame.trainViewList[trvIdx];
+    for (var trvIdx in frame.trainViewMap) {
+        var trView = frame.trainViewMap[trvIdx];
         trView.update();
     }
 }

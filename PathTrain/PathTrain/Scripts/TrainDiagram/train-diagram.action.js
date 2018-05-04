@@ -25,9 +25,9 @@ function stationViewHitTest(mouseLocation) {
     var isStatusChanged = false;  // To decide if the diagram should be redraw.
     var hitStationView = null;
 
-    for (var k in frame.blockList) {
-        for (var s in frame.blockList[k].stationViewList) {
-            var stationView = frame.blockList[k].stationViewList[s];
+    for (var k in frame.blockMap) {
+        for (var s in frame.blockMap[k].stationViewList) {
+            var stationView = frame.blockMap[k].stationViewList[s];
             if (stationView.hitTest(mouseLocation, 3) == true) {  // hit test is sucessful.
                 infoDiv.innerText = 'Station view:' + stationView.stationObj.name;
                 stationView.status = 'hit';

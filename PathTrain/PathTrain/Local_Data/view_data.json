@@ -1,0 +1,66 @@
+﻿{
+    "blockMap": [
+        {
+            "id": "0"
+        },
+        {
+            "id": "1"
+        }
+    ],
+    "stationViewMap": {
+        "0": [
+            {
+                "id": "0",
+                "stationObjId": "0",
+                "lineObjId": "0",
+                "blockId": "0",
+                "sequence": "0"
+            }
+        ],
+        "1": [
+            {
+                "id": "1",
+                "stationObjId": "1",
+                "lineObjId": "0",
+                "blockId": "0",
+                "sequence": "1"
+            }
+        ],
+        "2": [
+            {
+                "id": "2",
+                "stationObjId": "2",
+                "lineObjId": "0",
+                "blockId": "0",
+                "sequence": "2"
+            }
+        ],
+        "3": [
+            {
+                "id": "3",
+                "stationObjId": "3",
+                "lineObjId": "0",
+                "blockId": "1",
+                "sequence": "0"
+            }
+        ],
+        "4": [
+            {
+                "id": "4",
+                "stationObjId": "4",
+                "lineObjId": "0",
+                "blockId": "1",
+                "sequence": "1"
+            }
+        ],
+        "5": [
+            {
+                 "id": "5",
+                "stationObjId": "5",
+                "lineObjId": "0",
+                "blockId": "1",
+                "sequence": "2"
+            }
+        ]
+    }
+}
