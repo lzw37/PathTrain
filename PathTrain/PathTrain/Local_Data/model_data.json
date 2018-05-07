@@ -73,19 +73,121 @@
                 {
                     "train": "G1001",
                     "station": "0",
-                    "time": "120",
+                    "time": "1200",
                     "operation": "depart"
                 },
                 {
                     "train": "G1001",
                     "station": "1",
-                    "time": "220",
+                    "time": "4200",
                     "operation": "arrive"
                 },
                 {
                     "train": "G1001",
                     "station": "1",
-                    "time": "290",
+                    "time": "5900",
+                    "operation": "depart"
+                }
+            ]
+        },
+        "G1002": {
+            "id": "G1002",
+            "type": "G",
+            "originalStation": "4",
+            "destinationStation": "0",
+            "lineList": [ "0" ],
+            "timeTable": [
+                {
+                    "train": "G1002",
+                    "station": "1",
+                    "time": "9100",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1002",
+                    "station": "1",
+                    "time": "10120",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1002",
+                    "station": "0",
+                    "time": "13220",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1002",
+                    "station": "0",
+                    "time": "14290",
+                    "operation": "depart"
+                }
+            ]
+        },
+        "G1003": {
+            "id": "G1003",
+            "type": "G",
+            "originalStation": "0",
+            "destinationStation": "4",
+            "lineList": [ "0" ],
+            "timeTable": [
+                {
+                    "train": "G1003",
+                    "station": "0",
+                    "time": "0",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "0",
+                    "time": "1200",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "1",
+                    "time": "2220",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "1",
+                    "time": "3290",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "2",
+                    "time": "4100",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "2",
+                    "time": "5120",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "3",
+                    "time": "6220",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "3",
+                    "time": "7290",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "4",
+                    "time": "8220",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "4",
+                    "time": "9290",
                     "operation": "depart"
                 }
             ]

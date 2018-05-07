@@ -12,11 +12,11 @@ frame = new Frame({
 
 function input_data_handler() {
 
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-        // Great success! All the File APIs are supported.
-    } else {
-        alert('The File APIs are not fully supported in this browser.');
-    }
+    //if (window.File && window.FileReader && window.FileList && window.Blob) {
+    //    // Great success! All the File APIs are supported.
+    //} else {
+    //    alert('The File APIs are not fully supported in this browser.');
+    //}
 
     // model data
 
@@ -41,7 +41,7 @@ function input_data_handler() {
         frame.stationViewMap[staObjId] = [];
         for (var i in viewdata.stationViewMap[staObjId]) {
             var n = viewdata.stationViewMap[staObjId][i];
-            var staView = new StationView(n.id, n.stationObjId, n.lineObjId, n.blockId, n.sequence);
+            var staView = new StationView(n.id, n.stationObjId, n.lineObjId, n.blockId, n.sequence, n.milesInBlock);
             frame.blockMap[n.blockId].stationViewList.push(staView);
             frame.stationViewMap[n.stationObjId].push(staView);
         }

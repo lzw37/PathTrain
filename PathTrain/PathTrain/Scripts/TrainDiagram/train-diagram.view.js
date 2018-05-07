@@ -40,19 +40,16 @@ function DisplayStyle() {
 
     this.trainViewStyle = {
         color: {
-            'G': {
-                'color': '#009900'
-            },
-            'D': {
-
-            },
-            'F': {
-
-            }
+            'G': '#ff0000'
         },
         width: {
-
+            'G': '2'
         },
+    }
+
+    this.overBlockLineStyle = {
+        color: '#3b43e2',
+        width: '1'
     }
 }
 
@@ -107,7 +104,7 @@ function Frame(size) {
 
     // Transfer parameters between pixels and specific values.
     this.zoomRatio = {
-        horizontial: 0.016,  // pixel per second
+        horizontial: 0.1/*0.016*/,  // pixel per second
         vertical: 2.5, // pixel per miles
     }
 
@@ -226,30 +223,28 @@ function TimeLine() {
 
 // StationView: a view object of the station line in the diagram
 
-function StationView(id, stationObjId, lineObjId, blockId, sequence) {
+function StationView(id, stationObjId, lineObjId, blockId, sequence, milesInBlock) {
     this.id = id;
     // Structure attributes
     this.stationObj = model.station_map[stationObjId];
     this.lineObj = model.line_map[lineObjId];
     this.block = frame.blockMap[blockId];
     this.sequence = sequence;
-    this.milesInBlock = this.stationObj.miles;
+    this.milesInBlock = milesInBlock;
 
     // Status attribute
     this.status = 'normal';
 
     // Position attributes
     this.Y = 0;
-    this.left = function () {
-        return this.block.left();
-    }
-    this.right = function () {
-        return this.block.right();
-    }
+    this.left = 0;
+    this.right = 0;
 
     // Update the current station view.
     this.update = function (blockTop) {
         this.Y = Math.round(blockTop + frame.zoomRatio.vertical * this.milesInBlock) + 0.5;
+        this.left = this.block.left();
+        this.right = this.block.right();
     }
 
     // Draw the current station view.
@@ -258,19 +253,15 @@ function StationView(id, stationObjId, lineObjId, blockId, sequence) {
         cxt.beginPath();
         cxt.lineWidth = currentStationViewStyle['width'];
         cxt.strokeStyle = currentStationViewStyle['color'];
-        cxt.moveTo(this.left(), this.Y);
-        cxt.lineTo(this.right(), this.Y);
+        cxt.moveTo(this.left, this.Y);
+        cxt.lineTo(this.right, this.Y);
         cxt.closePath();
         cxt.stroke();
     }
 
     // Hit test of the station view.
     this.hitTest = function (mouseLocation, radius) {
-        if (mouseLocation.Y < this.Y - radius || mouseLocation.Y > this.Y + radius)
-            return false;
-        if (mouseLocation.X < this.left() - radius || mouseLocation.X > this.right() + radius)
-            return false;
-        return true;
+        return lineHitTest(mouseLocation, radius, { startX: this.left, startY: this.Y, endX: this.right, endY: this.Y });
     }
 }
 
@@ -294,11 +285,12 @@ function TrainView(id, trainObj) {
                 var staView = staViewList[0];
                 this.stationViewList.push(staView);
 
-                var timeStampView = new TimeStampView(this, staView, trainObj.timeTable[stampIdx]);
+                var timeStampView = new TimeStampView(this, staView, trainObj.timeTable[stampIdx], 'available');
                 this.timeStampViewList.push(timeStampView);
             }
             else {
                 // more than one station views are found.
+                var currentStaViewCount = 0;  
                 for (var lId in this.trainObj.lineList) {
                     var l = model.line_map[lId];
                     for (var svId in staViewList) {
@@ -307,7 +299,19 @@ function TrainView(id, trainObj) {
                         if(l == staView.lineObj){
                             this.stationViewList.push(staView);
 
-                            var timeStampView = new TimeStampView(this, staView, trainObj.timeTable[stampIdx]);
+                            // the first 'StationView' object is the available one, while the others are virtual ones.
+                            currentStaViewCount++;
+                            var type = 'available';
+                            if (currentStaViewCount > 1) {
+                                if (trainObj.timeTable[stampIdx].operation == 'depart') { // only display depart virtual timestamp
+                                    type = 'virtual';
+                                }
+                                else {
+                                    continue;
+                                }
+                            }
+
+                            var timeStampView = new TimeStampView(this, staView, trainObj.timeTable[stampIdx], type);
                             this.timeStampViewList.push(timeStampView);
                         }
                     }
@@ -316,11 +320,40 @@ function TrainView(id, trainObj) {
         }
 
         // generate path list.
-        // ... 
+        if (this.timeStampViewList.length < 2) {
+            return;
+        }
+        var lastTsView = this.timeStampViewList[0];
+        for (var i = 1; i < this.timeStampViewList.length; i++) {
+            var tsView = this.timeStampViewList[i];
+            if ((lastTsView.type == "available" && tsView.type == "available") || 
+                (lastTsView.type == "virtual" && tsView.type == "available")) {  // running line or dwelling line
+                if (lastTsView.timeStamp.operation == "depart" &&
+                    tsView.timeStamp.operation == "arrive") {
+                    var l = new RunningLine(this, lastTsView, tsView);
+                    this.pathList.push(l);
+                }
+                else if (lastTsView.timeStamp.operation == "arrive" &&
+                    tsView.timeStamp.operation == "depart") {
+                    var l = new DwellingLine(this, lastTsView, tsView);
+                    this.pathList.push(l);
+                }
+            }
+            else {  // overblock line
+                var l = new OverBlockLine(this, lastTsView, tsView);
+                this.pathList.push(l);
+            }
+            lastTsView = tsView;
+        }
     }
 
-    this.hitTest = function () {
-
+    this.hitTest = function (mouseLocation, radius) {
+        for (var lId in this.pathList) {
+            var l = this.pathList[lId];
+            if (l.hitTest(mouseLocation, radius))
+                return true;
+        }
+        return false;
     }
 
     this.update = function () {
@@ -330,27 +363,34 @@ function TrainView(id, trainObj) {
         }
     }
 
-    this.draw = function () {
+    this.draw = function (cxt) {
         // draw a sectional path by the time stamps.
+        var currentTrainViewStyle = frame.trainViewStyle
+        cxt.beginPath();
+        cxt.lineWidth = frame.style.trainViewStyle.width[this.trainObj.type];
+        cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainObj.type];
         for (var l in this.pathList){
-            this.pathList[l].draw();
+            this.pathList[l].draw(cxt);
         }
+        cxt.closePath();
+        cxt.stroke();
     }
 }
 
 
 // TimeStampView: a view object of the time label of train operations (arrival or departure)
 
-function TimeStampView(trainView, stationView, timeStamp) {
+function TimeStampView(trainView, stationView, timeStamp, type) {
     this.stationView = stationView
     this.trainView = trainView;
     this.timeStamp = timeStamp;
+    this.type = type;
 
     this.X = 0;
     this.Y = 0;
 
-    this.hitTest = function () {
-
+    this.hitTest = function (mouseLocation, radius) {
+        
     }
 
     this.update = function () {
@@ -359,7 +399,7 @@ function TimeStampView(trainView, stationView, timeStamp) {
         this.Y = this.stationView.Y;
     }
 
-    this.draw = function () {
+    this.draw = function (cxt) {
 
     }
 }
@@ -372,25 +412,78 @@ function RunningLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.foreTimeStampView = foreTimeStampView;
     this.rareTimeStampView = rareTimeStampView;
 
-    function draw() {
-
+    this.draw = function (cxt) {
+        cxt.moveTo(this.foreTimeStampView.X, this.foreTimeStampView.Y);
+        cxt.lineTo(this.rareTimeStampView.X, this.rareTimeStampView.Y);
     }
 
+    this.hitTest = function (mouseLocation, radius) {
+        return lineHitTest(mouseLocation, radius, {
+            startX: this.foreTimeStampView.X,
+            startY: this.foreTimeStampView.Y,
+            endX: this.rareTimeStampView.X,
+            endY: this.rareTimeStampView.Y
+        });
+    }
 }
 
 
 // The dwelling line sections of train paths.
 
-function DwellingLine() {
+function DwellingLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.trainView = trainView;
     this.foreTimeStampView = foreTimeStampView;
     this.rareTimeStampView = rareTimeStampView;
 
-    function draw() {
+    this.draw = function (cxt) {
+        cxt.moveTo(this.foreTimeStampView.X, this.foreTimeStampView.Y);
+        cxt.lineTo(this.rareTimeStampView.X, this.rareTimeStampView.Y);
+    }
 
+    this.hitTest = function (mouseLocation, radius) {
+        return lineHitTest(mouseLocation, radius, {
+            startX: this.foreTimeStampView.X,
+            startY: this.foreTimeStampView.Y,
+            endX: this.rareTimeStampView.X,
+            endY: this.rareTimeStampView.Y
+        });
     }
 }
 
+
+// The over block section of train paths.
+
+function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView){
+    this.trainView = trainView;
+    this.foreTimeStampView = foreTimeStampView;
+    this.rareTimeStampView = rareTimeStampView;
+
+    this.draw = function (cxt) {
+        cxt.closePath();
+        cxt.stroke();
+
+        cxt.lineWidth = frame.style.overBlockLineStyle.width;
+        cxt.strokeStyle = frame.style.overBlockLineStyle.color;
+        cxt.beginPath();
+        cxt.moveTo(this.foreTimeStampView.X, this.foreTimeStampView.Y);
+        cxt.lineTo(this.rareTimeStampView.X, this.rareTimeStampView.Y);
+        cxt.closePath();
+        cxt.stroke();
+
+        cxt.lineWidth = frame.style.trainViewStyle.width[this.trainView.trainObj.type];
+        cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainView.trainObj.type];
+        cxt.beginPath();
+    }
+
+    this.hitTest = function (mouseLocation, radius) {
+        return lineHitTest(mouseLocation, radius, {
+            startX: this.foreTimeStampView.X,
+            startY: this.foreTimeStampView.Y,
+            endX: this.rareTimeStampView.X,
+            endY: this.rareTimeStampView.Y
+        });
+    }
+}
 
 // The main function for reflash the diagram
 
@@ -407,6 +500,10 @@ function display(cxt) {
 
     for (var tl in frame.timeLineList) {
         frame.timeLineList[tl].draw(cxt);
+    }
+
+    for (var tr in frame.trainViewMap) {
+        frame.trainViewMap[tr].draw(cxt);
     }
 }
 
@@ -439,5 +536,3 @@ function updateView() {
         trView.update();
     }
 }
-
-

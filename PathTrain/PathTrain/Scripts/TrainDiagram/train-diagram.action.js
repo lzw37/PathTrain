@@ -9,10 +9,42 @@
     var isDiagramChanged = false;
     // hit test
     var stationHitTestResult = stationViewHitTest({ 'X': x, 'Y': y });
+    var trainHitTestResult = trainViewHitTest({ 'X': x, 'Y': y });
 
     // redraw the diagram
     if (stationHitTestResult.isStatusChanged)
         display(cxt);  // hit test is not necessary to update position information.
+    if (trainHitTestResult.isStatusChanged)
+        display(cxt);
+}
+
+
+// A general line hit test function.
+
+function lineHitTest(mouseLocation, radius, line) {
+
+    // test if the mouse location is in the rectangle form by the line as diagonal
+    if (mouseLocation.X > line.endX + radius && mouseLocation.X > line.startX - radius)
+        return false;
+    if (mouseLocation.X < line.endX - radius && mouseLocation.X < line.startX + radius)
+        return false;
+
+    if (mouseLocation.Y > line.endY + radius  && mouseLocation.Y > line.startY - radius)
+        return false;
+    if (mouseLocation.Y < line.endY - radius && mouseLocation.Y < line.startY + radius)
+        return false;
+
+    var _A = line.endY - line.startY;
+    var _B = line.startX - line.endX;
+    var _C = line.endX * line.startY - line.startX * line.endY;
+
+    // the distance from the mouse location to the current line
+    var d = Math.abs(_A * mouseLocation.X + _B * mouseLocation.Y + _C) / Math.sqrt(_A * _A + _B * _B);
+
+    if (d < radius)
+        return true;
+    else
+        return false;
 }
 
 
@@ -45,4 +77,31 @@ function stationViewHitTest(mouseLocation) {
     if (hitStationView == null)
         infoDiv.innerText = '..';
     return { 'isStatusChanged': isStatusChanged, 'hitStationView': hitStationView };
+}
+
+
+// Global train view hit test.
+
+function trainViewHitTest(mouseLocation) {
+    var infoDiv = document.getElementById('info');
+
+    var isStatusChanged = false;  // To decide if the diagram should be redraw.
+    var hitTrainView = null;
+
+    for (var trId in frame.trainViewMap) {
+        var trView = frame.trainViewMap[trId];
+        if (trView.hitTest(mouseLocation, 3)) {  // hit test is sucessful.
+            var infoDiv = document.getElementById('info');
+            infoDiv.innerText = 'Train view:' + trView.trainObj.id;
+            hitTrainView = trView;
+            isStatusChanged = true;
+            break;
+        }
+        else {
+             
+        }
+    }
+    //if (hitTrainView == null)
+        //infoDiv.innerText = '..';
+    return { 'isStatusChanged': isStatusChanged, 'hitTrainView': hitTrainView };
 }
