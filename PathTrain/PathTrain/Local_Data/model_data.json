@@ -7,6 +7,10 @@
         "1": {
             "id": "1",
             "name": "jingguang2"
+        },
+        "2": {
+            "id": "2",
+            "name": "jingguang3"
         }
     },
     "station_map": {
@@ -46,11 +50,25 @@
             "miles": "30.0"
         },
         "5": {
-            "id": "4",
+            "id": "5",
             "name": "GuangZhou",
             "line_id": "0",
             "sequence": "1",
             "miles": "60.0"
+        },
+        "6": {
+            "id": "6",
+            "name": "Dongguan",
+            "line_id": "2",
+            "sequence": "0",
+            "miles": "0"
+        },
+        "7": {
+            "id": "7",
+            "name": "Shenzhen",
+            "line_id": "2",
+            "sequence": "0",
+            "miles": "70"
         }
     },
     "segment_map": {
@@ -93,10 +111,58 @@
         "G1002": {
             "id": "G1002",
             "type": "G",
-            "originalStation": "4",
+            "originalStation": "5",
             "destinationStation": "0",
-            "lineList": [ "0" ],
+            "lineList": [ "1", "0" ],
             "timeTable": [
+                {
+                    "train": "G1002",
+                    "station": "5",
+                    "time": "5200",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1002",
+                    "station": "5",
+                    "time": "5730",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1002",
+                    "station": "4",
+                    "time": "6002",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1002",
+                    "station": "4",
+                    "time": "6230",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1002",
+                    "station": "3",
+                    "time": "7520",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1002",
+                    "station": "3",
+                    "time": "7643",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1002",
+                    "station": "2",
+                    "time": "8002",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1002",
+                    "station": "2",
+                    "time": "8120",
+                    "operation": "depart"
+                },
                 {
                     "train": "G1002",
                     "station": "1",
@@ -128,7 +194,7 @@
             "type": "G",
             "originalStation": "0",
             "destinationStation": "4",
-            "lineList": [ "0" ],
+            "lineList": [ "0", "1", "2" ],
             "timeTable": [
                 {
                     "train": "G1003",
@@ -188,6 +254,42 @@
                     "train": "G1003",
                     "station": "4",
                     "time": "9290",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "5",
+                    "time": "9820",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "5",
+                    "time": "10090",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "6",
+                    "time": "10140",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "6",
+                    "time": "10550",
+                    "operation": "depart"
+                },
+                {
+                    "train": "G1003",
+                    "station": "7",
+                    "time": "12120",
+                    "operation": "arrive"
+                },
+                {
+                    "train": "G1003",
+                    "station": "7",
+                    "time": "12380",
                     "operation": "depart"
                 }
             ]

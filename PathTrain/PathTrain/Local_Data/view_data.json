@@ -5,6 +5,9 @@
         },
         {
             "id": "1"
+        },
+        {
+            "id": "2"
         }
     ],
     "stationViewMap": {
@@ -40,7 +43,7 @@
             {
                 "id": "6",
                 "stationObjId": "2",
-                "lineObjId": "0",
+                "lineObjId": "1",
                 "blockId": "1",
                 "sequence": "0",
                 "milesInBlock": "0.0"
@@ -50,7 +53,7 @@
             {
                 "id": "3",
                 "stationObjId": "3",
-                "lineObjId": "0",
+                "lineObjId": "1",
                 "blockId": "1",
                 "sequence": "1",
                 "milesInBlock": "10.0"
@@ -60,7 +63,7 @@
             {
                 "id": "4",
                 "stationObjId": "4",
-                "lineObjId": "0",
+                "lineObjId": "1",
                 "blockId": "1",
                 "sequence": "2",
                 "milesInBlock": "40.0"
@@ -68,11 +71,39 @@
         ],
         "5": [
             {
-                 "id": "5",
+                "id": "5",
                 "stationObjId": "5",
-                "lineObjId": "0",
+                "lineObjId": "1",
                 "blockId": "1",
                 "sequence": "3",
+                "milesInBlock": "70.0"
+            },
+            {
+                "id": "9",
+                "stationObjId": "5",
+                "lineObjId": "2",
+                "blockId": "2",
+                "sequence": "0",
+                "milesInBlock": "0"
+            }
+        ],
+        "6": [
+            {
+                "id": "7",
+                "stationObjId": "6",
+                "lineObjId": "2",
+                "blockId": "2",
+                "sequence": "1",
+                "milesInBlock": "30.0"
+            }
+        ],
+        "7": [
+            {
+                "id": "8",
+                "stationObjId": "7",
+                "lineObjId": "2",
+                "blockId": "2",
+                "sequence": "2",
                 "milesInBlock": "70.0"
             }
         ]

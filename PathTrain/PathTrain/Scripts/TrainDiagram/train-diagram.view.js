@@ -51,6 +51,14 @@ function DisplayStyle() {
         color: '#3b43e2',
         width: '1'
     }
+
+    this.timeStampViewStyle = {
+        color: {
+            'G': '#ff0000'
+        },
+        radius: 4,
+        width: 1
+    }
 }
 
 
@@ -292,7 +300,7 @@ function TrainView(id, trainObj) {
                 // more than one station views are found.
                 var currentStaViewCount = 0;  
                 for (var lId in this.trainObj.lineList) {
-                    var l = model.line_map[lId];
+                    var l = model.line_map[this.trainObj.lineList[lId]];
                     for (var svId in staViewList) {
                         // select the display StationView by the line list.
                         var staView = staViewList[svId];
@@ -369,11 +377,28 @@ function TrainView(id, trainObj) {
         cxt.beginPath();
         cxt.lineWidth = frame.style.trainViewStyle.width[this.trainObj.type];
         cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainObj.type];
+        cxt.fillStyle = frame.style.trainViewStyle.color[this.trainObj.type];
         for (var l in this.pathList){
             this.pathList[l].draw(cxt);
         }
         cxt.closePath();
         cxt.stroke();
+
+        // draw all time stamp views.
+        this.drawTimeStampViews(cxt);
+    }
+
+    this.drawTimeStampViews = function (cxt) {
+        cxt.beginPath();
+        cxt.strokeStyle = frame.style.timeStampViewStyle.color[this.trainObj.type];
+        cxt.lineWidth = frame.style.timeStampViewStyle.width;
+        for (var tsvIdx in this.timeStampViewList) {
+            var tsv = this.timeStampViewList[tsvIdx];
+            tsv.draw(cxt, frame.style.timeStampViewStyle.radius);
+        }
+        cxt.closePath();
+        cxt.stroke();
+        cxt.fill();
     }
 }
 
@@ -390,7 +415,11 @@ function TimeStampView(trainView, stationView, timeStamp, type) {
     this.Y = 0;
 
     this.hitTest = function (mouseLocation, radius) {
-        
+        var d = Math.sqrt((mouseLocation.X - this.X) ^ 2 + (mouseLocation.Y - this.Y) ^ 2);
+        if (d <= radius)
+            return true;
+        else
+            return false;
     }
 
     this.update = function () {
@@ -399,8 +428,11 @@ function TimeStampView(trainView, stationView, timeStamp, type) {
         this.Y = this.stationView.Y;
     }
 
-    this.draw = function (cxt) {
-
+    this.draw = function (cxt, radius) {
+        if (this.type == "virtual")
+            return;
+        cxt.moveTo(this.X, this.Y);
+        cxt.arc(this.X, this.Y, radius, 0, 2 * Math.PI);
     }
 }
 
