@@ -233,6 +233,7 @@
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\TrainDiagram\train-diagram.action.js" />
+    <Content Include="Scripts\TrainDiagram\train-diagram.command.js" />
     <Content Include="Scripts\TrainDiagram\train-diagram.view.js" />
     <Content Include="Scripts\TrainDiagram\train-diagram.model.js" />
     <Content Include="Scripts\TrainDiagram\train-diagram.js" />
