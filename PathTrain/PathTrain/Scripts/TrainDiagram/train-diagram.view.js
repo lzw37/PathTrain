@@ -415,7 +415,10 @@ function TimeStampView(trainView, stationView, timeStamp, type) {
     this.Y = 0;
 
     this.hitTest = function (mouseLocation, radius) {
-        var d = Math.sqrt((mouseLocation.X - this.X) ^ 2 + (mouseLocation.Y - this.Y) ^ 2);
+        if (this.type == "virtual")
+            return false;
+
+        var d = Math.sqrt(Math.pow((mouseLocation.X - this.X), 2) + Math.pow((mouseLocation.Y - this.Y), 2));
         if (d <= radius)
             return true;
         else
@@ -521,7 +524,7 @@ function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView){
 
 function display(cxt) {
     // Fill the background
-    cxt.fillStyle = "#e5f7ff";
+    cxt.fillStyle = frame.style.background;
     c.clientWidth
     cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
 

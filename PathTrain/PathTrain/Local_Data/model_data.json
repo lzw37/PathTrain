@@ -85,13 +85,13 @@
                 {
                     "train": "G1001",
                     "station": "0",
-                    "time": "100",
+                    "time": "2100",
                     "operation": "arrive"
                 },
                 {
                     "train": "G1001",
                     "station": "0",
-                    "time": "1200",
+                    "time": "3200",
                     "operation": "depart"
                 },
                 {

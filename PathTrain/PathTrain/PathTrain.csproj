@@ -221,6 +221,7 @@
     </Content>
     <Content Include="Local_Data\model_data.json" />
     <Content Include="Local_Data\view_data.json" />
+    <Content Include="Local_Data\display_style.json" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />

@@ -29,6 +29,12 @@ function input_data_handler() {
     htmlobj = $.ajax({ url: "Local_Data/view_data.json", async: false });
     viewdata = JSON.parse(htmlobj.responseText);
 
+
+    // style data
+    htmlobj = $.ajax({ url: "Local_Data/display_style.json", async: false });
+    frame.style = JSON.parse(htmlobj.responseText)["default"];
+    //frame.style = JSON.parse(htmlobj.responseText)["custom"];
+
     // block
     for (var kId in viewdata.blockMap) {
         var k = viewdata.blockMap[kId];

@@ -1,0 +1,126 @@
+﻿{
+    "default": {
+        "styleName": "Default",
+
+        "background": "#e5f7ff",
+
+        "stationViewStyle": {
+            "normal": {
+                "color": "#009900",
+                "width": "2"
+            },
+            "hit": {
+                "color": "#00e600",
+                "width": "2"
+            }
+        },
+
+        "timeLineStepSize": {
+            "_10min": 600,
+            "_60min": 3600
+        },
+
+        "timeLineStyle": {
+            "default": {
+                "color": "#009900",
+                "width": "1"
+            },
+            "hour": {
+                "color": "#009900",
+                "width": "2.5"
+            },
+            "_30min": {
+                "color": "#009900",
+                "width": "1"
+            },
+            "_10min": {
+                "color": "#009900",
+                "width": "1"
+            }
+        },
+
+        "trainViewStyle": {
+            "color": {
+                "G": "#ff0000"
+            },
+            "width": {
+                "G": "2"
+            }
+        },
+
+        "overBlockLineStyle": {
+            "color": "#3b43e2",
+            "width": "1"
+        },
+
+        "timeStampViewStyle": {
+            "color": {
+                "G": "#ff0000"
+            },
+            "radius": 4,
+            "width": 1
+        }
+    },
+    "custom": {
+        "styleName": "Custom",
+
+        "background": "#1c1c1c",
+
+        "stationViewStyle": {
+            "normal": {
+                "color": "#204424",
+                "width": "2"
+            },
+            "hit": {
+                "color": "#00e600",
+                "width": "2"
+            }
+        },
+
+        "timeLineStepSize": {
+            "_10min": 600,
+            "_60min": 3600
+        },
+
+        "timeLineStyle": {
+            "default": {
+                "color": "#204424",
+                "width": "1"
+            },
+            "hour": {
+                "color": "#1a5621",
+                "width": "2.5"
+            },
+            "_30min": {
+                "color": "#204424",
+                "width": "1"
+            },
+            "_10min": {
+                "color": "#204424",
+                "width": "1"
+            }
+        },
+
+        "trainViewStyle": {
+            "color": {
+                "G": "#ff7f7f"
+            },
+            "width": {
+                "G": "2"
+            }
+        },
+
+        "overBlockLineStyle": {
+            "color": "#ffffff",
+            "width": "1"
+        },
+
+        "timeStampViewStyle": {
+            "color": {
+                "G": "#ff7f7f"
+            },
+            "radius": 4,
+            "width": 1
+        }
+    }
+}

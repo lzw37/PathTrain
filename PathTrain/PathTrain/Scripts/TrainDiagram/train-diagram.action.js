@@ -10,6 +10,7 @@
     // hit test
     var stationHitTestResult = stationViewHitTest({ 'X': x, 'Y': y });
     var trainHitTestResult = trainViewHitTest({ 'X': x, 'Y': y });
+    var timeStampHitTestResult = timeStampViewHitTest({ 'X': x, 'Y': y });
 
     // redraw the diagram
     if (stationHitTestResult.isStatusChanged)
@@ -104,4 +105,32 @@ function trainViewHitTest(mouseLocation) {
     //if (hitTrainView == null)
         //infoDiv.innerText = '..';
     return { 'isStatusChanged': isStatusChanged, 'hitTrainView': hitTrainView };
+}
+
+
+// Global time stamp view hit test.
+
+function timeStampViewHitTest(mouseLocation) {
+    var isStatusChanged = false;
+    var hitTimeStampView = null;
+
+    for (var trId in frame.trainViewMap) {
+        var trView = frame.trainViewMap[trId];
+
+        for (var tsvId in trView.timeStampViewList) {
+            var tsv = trView.timeStampViewList[tsvId];
+            if (tsv.hitTest(mouseLocation, 3)) {
+                var infoDiv = document.getElementById('info');
+                infoDiv.innerText = 'Time stamp view:' + trView.trainObj.id + '--' + model.station_map[tsv.timeStamp.station].name + '-' + tsv.timeStamp.operation + ':' + tsv.timeStamp.time;
+                hitTimeStampView = tsv;
+                isStatusChanged = true;
+                break;
+            }
+            else {
+
+            }
+        }
+    }
+
+    return { 'isStatusChanged': isStatusChanged, 'hitTimeStampView': hitTimeStampView };
 }
