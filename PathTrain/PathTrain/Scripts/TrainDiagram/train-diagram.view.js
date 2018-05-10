@@ -215,7 +215,7 @@ function TimeLine() {
             cxt.setLineDash([5]);
         }
         else {
-            cxt.setLineDash([0]);
+            cxt.setLineDash([]);
         }
         for (var s in this.lineSection) {
             var section = this.lineSection[s];
