@@ -31,8 +31,8 @@ function input_data_handler() {
 
 
     // style data
-    htmlobj = $.ajax({ url: "Local_Data/display_style.json", async: false });
-    frame.style = JSON.parse(htmlobj.responseText)["default"];
+    //htmlobj = $.ajax({ url: "Local_Data/display_style.json", async: false });
+    //frame.style = JSON.parse(htmlobj.responseText)["default"];
     //frame.style = JSON.parse(htmlobj.responseText)["custom"];
 
     // block

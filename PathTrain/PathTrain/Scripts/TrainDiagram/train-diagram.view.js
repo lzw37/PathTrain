@@ -3,6 +3,8 @@
 function DisplayStyle() {
     this.styleName = 'Default';
 
+    this.background = '#e5f7ff';
+
     this.stationViewStyle = {
         'normal': {
             'color': '#009900',
@@ -43,7 +45,12 @@ function DisplayStyle() {
             'G': '#ff0000'
         },
         width: {
-            'G': '2'
+            normal:{
+                'G': '2'
+            },
+            hit: {
+                'G': '4'
+            }
         },
     }
 
@@ -55,6 +62,9 @@ function DisplayStyle() {
     this.timeStampViewStyle = {
         color: {
             'G': '#ff0000'
+        },
+        fillColor:{
+            'hit': '#ffffff'
         },
         radius: 4,
         width: 1
@@ -282,6 +292,8 @@ function TrainView(id, trainObj) {
     this.timeStampViewList = []; // in the drawing sequence
     this.pathList = [];  // in the drawing sequence. 
 
+    this.status = 'normal';
+
     this.generate = function () {
         // generate the relative timeStampViewList by the trainObj.timeStampList
         for (var stampIdx in trainObj.timeTable) {
@@ -375,7 +387,7 @@ function TrainView(id, trainObj) {
         // draw a sectional path by the time stamps.
         var currentTrainViewStyle = frame.trainViewStyle
         cxt.beginPath();
-        cxt.lineWidth = frame.style.trainViewStyle.width[this.trainObj.type];
+        cxt.lineWidth = frame.style.trainViewStyle.width[this.status][this.trainObj.type];
         cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainObj.type];
         cxt.fillStyle = frame.style.trainViewStyle.color[this.trainObj.type];
         for (var l in this.pathList){
@@ -414,6 +426,8 @@ function TimeStampView(trainView, stationView, timeStamp, type) {
     this.X = 0;
     this.Y = 0;
 
+    this.status = "normal";
+
     this.hitTest = function (mouseLocation, radius) {
         if (this.type == "virtual")
             return false;
@@ -434,8 +448,26 @@ function TimeStampView(trainView, stationView, timeStamp, type) {
     this.draw = function (cxt, radius) {
         if (this.type == "virtual")
             return;
-        cxt.moveTo(this.X, this.Y);
-        cxt.arc(this.X, this.Y, radius, 0, 2 * Math.PI);
+        if (this.status != "normal") {
+            cxt.closePath();
+            cxt.stroke();
+            cxt.fill();
+
+            cxt.beginPath();
+            cxt.fillStyle = frame.style.timeStampViewStyle.fillColor[this.status];
+            cxt.moveTo(this.X, this.Y);
+            cxt.arc(this.X, this.Y, radius, 0, 2 * Math.PI);
+            cxt.closePath();
+            cxt.stroke();
+            cxt.fill();
+
+            cxt.beginPath();
+            cxt.fillStyle = frame.style.timeStampViewStyle.color[this.trainView.trainObj.type];
+        }
+        else {
+            cxt.moveTo(this.X, this.Y);
+            cxt.arc(this.X, this.Y, radius, 0, 2 * Math.PI);
+        }
     }
 }
 
@@ -505,7 +537,7 @@ function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView){
         cxt.closePath();
         cxt.stroke();
 
-        cxt.lineWidth = frame.style.trainViewStyle.width[this.trainView.trainObj.type];
+        cxt.lineWidth = frame.style.trainViewStyle.width[this.trainView.status][this.trainView.trainObj.type];
         cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainView.trainObj.type];
         cxt.beginPath();
     }

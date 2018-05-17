@@ -17,6 +17,8 @@
         display(cxt);  // hit test is not necessary to update position information.
     if (trainHitTestResult.isStatusChanged)
         display(cxt);
+    if (timeStampHitTestResult.isStatusChanged)
+        display(cxt);
 }
 
 
@@ -95,11 +97,17 @@ function trainViewHitTest(mouseLocation) {
             var infoDiv = document.getElementById('info');
             infoDiv.innerText = 'Train view:' + trView.trainObj.id;
             hitTrainView = trView;
+
+            trView.status = 'hit';
+
             isStatusChanged = true;
             break;
         }
         else {
-             
+            if (trView.status == 'hit') {
+                trView.status = 'normal';
+                isStatusChanged = true;
+            }
         }
     }
     //if (hitTrainView == null)
@@ -123,11 +131,17 @@ function timeStampViewHitTest(mouseLocation) {
                 var infoDiv = document.getElementById('info');
                 infoDiv.innerText = 'Time stamp view:' + trView.trainObj.id + '--' + model.station_map[tsv.timeStamp.station].name + '-' + tsv.timeStamp.operation + ':' + tsv.timeStamp.time;
                 hitTimeStampView = tsv;
+
+                tsv.status = "hit";
+
                 isStatusChanged = true;
                 break;
             }
             else {
-
+                if (tsv.status == 'hit') {
+                    tsv.status = 'normal';
+                    isStatusChanged = true;
+                }
             }
         }
     }
