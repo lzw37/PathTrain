@@ -1,30 +1,84 @@
-﻿function mouseMove(e) {
+﻿// global mousemove response function
+
+function mouseMove(e) {
     // location display
     var div = document.getElementById('coordinate');
+    var infoDiv = document.getElementById('info');
+
     var x = e.offsetX;
     var y = e.offsetY;
     div.innerText = 'Current mouse location:(' + x + ',' + y + '). ' + 'Time:' + frame.pixelToSecond(x);
 
-
     var isDiagramChanged = false;
+
     // hit test
-    var stationHitTestResult = stationViewHitTest({ 'X': x, 'Y': y });
-    var trainHitTestResult = trainViewHitTest({ 'X': x, 'Y': y });
-    var timeStampHitTestResult = timeStampViewHitTest({ 'X': x, 'Y': y });
+    var stationHitResult = stationViewHit({ 'X': x, 'Y': y });
+    var trainHitResult = trainViewHit({ 'X': x, 'Y': y });
+    var timeStampHitResult = timeStampViewHit({ 'X': x, 'Y': y });
+
+    // set or remove hit status
+    if (stationHitResult != frame.hitStationView) {
+        if (frame.hitStationView != null && frame.hitStationView.status != "selected") {
+            frame.hitStationView.status = "normal";
+        }
+        frame.hitStationView = stationHitResult;
+        if (stationHitResult != null && stationHitResult.status != "selected") {
+            stationHitResult.status = "hit";
+            infoDiv.innerText = 'Station view:' + stationHitResult.stationObj.name;
+        }
+        isDiagramChanged = true;
+    }
+    if (trainHitResult != frame.hitTrainView) {
+        if (frame.hitTrainView != null && frame.hitTrainView.status != "selected") {
+            frame.hitTrainView.status = "normal";
+        }
+        frame.hitTrainView = trainHitResult;
+        if (trainHitResult != null && trainHitResult.status != "selected") {
+            trainHitResult.status = "hit";
+            infoDiv.innerText = 'Train view:' + trainHitResult.trainObj.id;
+        }
+        isDiagramChanged = true;
+    }
+    if (timeStampHitResult != frame.hitTimeStampView) {
+        if (frame.hitTimeStampView != null) {
+            frame.hitTimeStampView.status = "normal";
+        }
+        frame.hitTimeStampView = timeStampHitResult;
+        if (timeStampHitResult != null) {
+            timeStampHitResult.status = "hit";
+            infoDiv.innerText = 'Time stamp view:' + timeStampHitResult.trainView.trainObj.id + '--' + model.station_map[timeStampHitResult.timeStamp.station].name + '-' + timeStampHitResult.timeStamp.operation + ':' + timeStampHitResult.timeStamp.time;
+        }
+        isDiagramChanged = true;
+    }
 
     // redraw the diagram
-    if (stationHitTestResult.isStatusChanged)
-        display(cxt);  // hit test is not necessary to update position information.
-    if (trainHitTestResult.isStatusChanged)
-        display(cxt);
-    if (timeStampHitTestResult.isStatusChanged)
+    if (isDiagramChanged)
         display(cxt);
 }
+
+// global mouseclick response function
 
 function mouseLeftClick(e) {
     var x = e.offsetX;
     var y = e.offsetY;
-    trainSelect({ 'X': x, 'Y': y });
+
+    var infoDiv = document.getElementById('info');
+
+    var trainSelectResult = trainViewSelect({ 'X': x, 'Y': y });
+
+    if (trainSelectResult != frame.selectedTrainView) {
+
+        if (trainSelectResult != null) {
+            trainSelectResult.status = "selected";
+        }
+        if (frame.selectedTrainView != null) {
+            frame.selectedTrainView.status = "normal";
+        }
+        frame.selectedTrainView = trainSelectResult;
+        if (trainSelectResult != null) {
+            infoDiv.innerText = 'Selected Train view:' + trainSelectResult.trainObj.id;
+        }
+    }
 
     display(cxt);
 }
@@ -62,32 +116,17 @@ function lineHitTest(mouseLocation, radius, line) {
 // Global station view hit test.
 
 function stationViewHitTest(mouseLocation) {
-
-    var infoDiv = document.getElementById('info');
-
-    var isStatusChanged = false;  // To decide if the diagram should be redraw.
     var hitStationView = null;
 
     for (var k in frame.blockMap) {
         for (var s in frame.blockMap[k].stationViewList) {
             var stationView = frame.blockMap[k].stationViewList[s];
             if (stationView.hitTest(mouseLocation, 3) == true) {  // hit test is sucessful.
-                infoDiv.innerText = 'Station view:' + stationView.stationObj.name;
-                stationView.status = 'hit';
                 hitStationView = stationView;
-                isStatusChanged = true;
-            }
-            else {  // hit test failed.
-                if (stationView.status == 'hit') {
-                    stationView.status = 'normal';
-                    isStatusChanged = true;
-                }
             }
         }
     }
-    if (hitStationView == null)
-        infoDiv.innerText = '..';
-    return { 'isStatusChanged': isStatusChanged, 'hitStationView': hitStationView };
+    return hitStationView;
 }
 
 
@@ -96,48 +135,21 @@ function stationViewHitTest(mouseLocation) {
 function trainViewHitTest(mouseLocation) {
     var infoDiv = document.getElementById('info');
 
-    var isStatusChanged = false;  // To decide if the diagram should be redraw.
     var hitTrainView = null;
 
     for (var trId in frame.trainViewMap) {
         var trView = frame.trainViewMap[trId];
         if (trView.hitTest(mouseLocation, 3)) {  // hit test is sucessful.
-            var infoDiv = document.getElementById('info');
-            infoDiv.innerText = 'Train view:' + trView.trainObj.id;
             hitTrainView = trView;
-            isStatusChanged = true;
             break;
         }
-        else {
-            if (trView.status == 'hit') {
-                trView.status = 'normal';
-                isStatusChanged = true;
-            }
-        }
     }
-    //if (hitTrainView == null)
-        //infoDiv.innerText = '..';
-    return { 'isStatusChanged': isStatusChanged, 'hitTrainView': hitTrainView };
-}
-
-function trainHit(mouseLocation) {
-    var hitTestResult = trainViewHitTest(mouseLocation);
-    if (hitTestResult.hitTrainView != null) {
-        hitTestResult.hitTrainView.status = "hit";
-    }
-}
-
-function trainSelect(mouseLocation) {
-    var hitTestResult = trainViewHitTest(mouseLocation);
-    if (hitTestResult.hitTrainView != null) {
-        hitTestResult.hitTrainView.status = "selected";
-    }
+    return hitTrainView;
 }
 
 // Global time stamp view hit test.
 
 function timeStampViewHitTest(mouseLocation) {
-    var isStatusChanged = false;
     var hitTimeStampView = null;
 
     for (var trId in frame.trainViewMap) {
@@ -146,23 +158,40 @@ function timeStampViewHitTest(mouseLocation) {
         for (var tsvId in trView.timeStampViewList) {
             var tsv = trView.timeStampViewList[tsvId];
             if (tsv.hitTest(mouseLocation, 3)) {
-                var infoDiv = document.getElementById('info');
-                infoDiv.innerText = 'Time stamp view:' + trView.trainObj.id + '--' + model.station_map[tsv.timeStamp.station].name + '-' + tsv.timeStamp.operation + ':' + tsv.timeStamp.time;
                 hitTimeStampView = tsv;
-
-                tsv.status = "hit";
-
-                isStatusChanged = true;
                 break;
-            }
-            else {
-                if (tsv.status == 'hit') {
-                    tsv.status = 'normal';
-                    isStatusChanged = true;
-                }
             }
         }
     }
 
-    return { 'isStatusChanged': isStatusChanged, 'hitTimeStampView': hitTimeStampView };
+    return hitTimeStampView;
 }
+
+function stationViewHit(mouseLocation) {
+    var hitTestResult = stationViewHitTest(mouseLocation);
+    if (hitTestResult != null) {
+    }
+    return hitTestResult;
+}
+
+function trainViewHit(mouseLocation) {
+    var hitTestResult = trainViewHitTest(mouseLocation);
+    if (hitTestResult != null) {
+    }
+    return hitTestResult;
+}
+
+function timeStampViewHit(mouseLocation) {
+    var hitTestResult = timeStampViewHitTest(mouseLocation);
+    if (hitTestResult != null) {
+    }
+    return hitTestResult;
+}
+
+function trainViewSelect(mouseLocation) {
+    var hitTestResult = trainViewHitTest(mouseLocation);
+    if (hitTestResult != null) {
+    }
+    return hitTestResult;
+}
+

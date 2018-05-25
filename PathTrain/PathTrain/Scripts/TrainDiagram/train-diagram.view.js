@@ -138,6 +138,13 @@ function Frame(size) {
     this.secondToPixel = function (second) {
         return Math.round(this.orgPosition.X + this.zoomRatio.horizontial * second) + 0.5;
     }
+
+    // action vars of the frame
+    this.hitTrainView = null;
+    this.hitStationView = null;
+    this.hitTimeStampView = null;
+    this.selectedTrainView = null;
+
 }
 
 
