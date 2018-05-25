@@ -49,6 +49,9 @@ function DisplayStyle() {
                 'G': '2'
             },
             hit: {
+                'G': '3'
+            },
+            selected: {
                 'G': '4'
             }
         },

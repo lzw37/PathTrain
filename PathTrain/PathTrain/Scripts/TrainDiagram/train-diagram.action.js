@@ -21,6 +21,14 @@
         display(cxt);
 }
 
+function mouseLeftClick(e) {
+    var x = e.offsetX;
+    var y = e.offsetY;
+    trainSelect({ 'X': x, 'Y': y });
+
+    display(cxt);
+}
+
 
 // A general line hit test function.
 
@@ -97,9 +105,6 @@ function trainViewHitTest(mouseLocation) {
             var infoDiv = document.getElementById('info');
             infoDiv.innerText = 'Train view:' + trView.trainObj.id;
             hitTrainView = trView;
-
-            trView.status = 'hit';
-
             isStatusChanged = true;
             break;
         }
@@ -115,6 +120,19 @@ function trainViewHitTest(mouseLocation) {
     return { 'isStatusChanged': isStatusChanged, 'hitTrainView': hitTrainView };
 }
 
+function trainHit(mouseLocation) {
+    var hitTestResult = trainViewHitTest(mouseLocation);
+    if (hitTestResult.hitTrainView != null) {
+        hitTestResult.hitTrainView.status = "hit";
+    }
+}
+
+function trainSelect(mouseLocation) {
+    var hitTestResult = trainViewHitTest(mouseLocation);
+    if (hitTestResult.hitTrainView != null) {
+        hitTestResult.hitTrainView.status = "selected";
+    }
+}
 
 // Global time stamp view hit test.
 
