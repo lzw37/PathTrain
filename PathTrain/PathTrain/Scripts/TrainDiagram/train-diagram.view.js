@@ -407,7 +407,9 @@ function TrainView(id, trainObj) {
         cxt.stroke();
 
         // draw all time stamp views.
-        this.drawTimeStampViews(cxt);
+        if (this.status == "selected") {
+            this.drawTimeStampViews(cxt);
+        }
     }
 
     this.drawTimeStampViews = function (cxt) {
