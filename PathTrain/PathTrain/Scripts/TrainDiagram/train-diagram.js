@@ -101,6 +101,16 @@ $('input[type="range"]').on('input', function (e) {
             document.getElementById('info').innerHTML = value;
             break;
         }
+        case 'position_X': {
+            frame.setDisplayPosition_X(value);
+            document.getElementById('info').innerHTML = value;
+            break;
+        }
+        case 'position_Y': {
+            frame.setDisplayPosition_Y(value);
+            document.getElementById('info').innerHTML = value;
+            break;
+        }
     }
     paint();
 })

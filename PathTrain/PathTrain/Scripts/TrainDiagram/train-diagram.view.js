@@ -164,13 +164,13 @@ function Frame(size) {
         return this.orgPosition.X;
     }
     this.setDisplayPosition_X = function (value) {
-        this.orgPosition.X = value;
+        this.orgPosition.X = parseInt(value) * 20;
     }
     this.getDisplayPosition_Y = function () {
         return this.orgPosition.Y;
     }
     this.setDisplayPosition_Y = function (value) {
-        this.orgPosition.Y = value;
+        this.orgPosition.Y = parseInt(value) * 20;
     }
 
     // The main function for reflash the diagram
