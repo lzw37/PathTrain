@@ -53,6 +53,19 @@ function input_data_handler() {
         }
     }
 
+    // time line view
+    for (var t = 0; t < frame.totalTimeInSecond;
+        t += frame.style.timeLineStepSize[frame.displaySettings.timeLineMode]) {
+        var tl = new TimeLine(t);
+        frame.timeLineList.push(tl);
+
+        //for (var k in frame.blockMap) {
+        //    var block = frame.blockMap[k];
+
+        //    tl.lineSection.push(lineSection);
+        //}
+    }
+
     // train view
     for (var trId in model.train_map) {
         var trObj = model.train_map[trId];
@@ -65,9 +78,32 @@ function input_data_handler() {
 
 
 function paint() {
-    updateView();
-    display(cxt);
+    frame.updateView();
+    frame.display(cxt);
 }
+
+// controls
+
+// range control
+$('input[type="range"]').on('input', function (e) {
+    var value = e.target.value;
+    document.getElementById('info').innerHTML = value;
+
+    switch(e.target.id)
+    {
+        case 'ratio_X': {
+            frame.setDisplayRatio_X(value);
+            document.getElementById('info').innerHTML = value;
+            break;
+        }
+        case 'ratio_Y': {
+            frame.setDisplayRatio_Y(value);
+            document.getElementById('info').innerHTML = value;
+            break;
+        }
+    }
+    paint();
+})
 
 
 // The main procedure..

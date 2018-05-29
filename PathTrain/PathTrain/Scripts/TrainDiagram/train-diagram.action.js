@@ -53,7 +53,7 @@ function mouseMove(e) {
 
     // redraw the diagram
     if (isDiagramChanged)
-        display(cxt);
+        frame.display(cxt);
 }
 
 // global mouseclick response function
@@ -80,7 +80,7 @@ function mouseLeftClick(e) {
         }
     }
 
-    display(cxt);
+    frame.display(cxt);
 }
 
 
