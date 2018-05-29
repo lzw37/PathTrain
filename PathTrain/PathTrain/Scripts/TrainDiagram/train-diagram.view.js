@@ -145,6 +145,82 @@ function Frame(size) {
     this.hitTimeStampView = null;
     this.selectedTrainView = null;
 
+    // display ratio function
+    this.getDisplayRatio_X = function(){
+        return this.zoomRatio.horizontial;
+    }
+    this.setDisplayRatio_X = function (value) {
+        this.zoomRatio.horizontial = value / 500;
+    }
+    this.getDisplayRatio_Y = function () {
+        return this.zoomRatio.vertical;
+    }
+    this.setDisplayRatio_Y = function (value) {
+        this.zoomRatio.vertical = value / 20;
+    }
+
+    // position function
+    this.getDisplayPosition_X = function () {
+        return this.orgPosition.X;
+    }
+    this.setDisplayPosition_X = function (value) {
+        this.orgPosition.X = parseInt(value) * 20;
+    }
+    this.getDisplayPosition_Y = function () {
+        return this.orgPosition.Y;
+    }
+    this.setDisplayPosition_Y = function (value) {
+        this.orgPosition.Y = parseInt(value) * 20;
+    }
+
+    // The main function for reflash the diagram
+    this.display = function (cxt) {
+        // Fill the background
+        cxt.fillStyle = this.style.background;
+        c.clientWidth
+        cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
+
+        // draw diagram.
+        for (var k in this.blockMap) {
+            this.blockMap[k].draw(cxt);
+        }
+
+        for (var tl in this.timeLineList) {
+            this.timeLineList[tl].draw(cxt);
+        }
+
+        for (var tr in frame.trainViewMap) {
+            this.trainViewMap[tr].draw(cxt);
+        }
+    }
+
+
+    // Update the whole train diagram.
+
+    this.updateView = function () {
+
+        // Update the position of blocks and station views.
+
+        var currentY = this.orgPosition.Y;
+
+        for (var k in this.blockMap) {
+            var block = this.blockMap[k];
+            block.update(currentY);
+            currentY = block.bottom + block.margin;
+        }
+
+        // Update the time lines.
+        for (var tl in this.timeLineList) {
+            var timeLineView = this.timeLineList[tl];
+            timeLineView.update();
+        }
+
+        // Update train views.
+        for (var trvIdx in this.trainViewMap) {
+            var trView = this.trainViewMap[trvIdx];
+            trView.update();
+        }
+    }
 }
 
 
@@ -193,18 +269,18 @@ function Block(id) {
 
 // TimeLine: a view object of the time line in the diagram
 
-function TimeLine() {
-    this.time = 0;  // in second
+function TimeLine(t) {
+    this.time = t;  // in second
     this.X = 0;
     this.lineSection = []; // {startY:value, endY:value}, depending on the position (top and bottom) of each block
     this.lineType = 'default';
 
     // Update the position of the time line.
-    this.update = function (time) {
-        this.time = time;
-        this.X = frame.secondToPixel(time);
+    this.update = function () {
+        this.X = frame.secondToPixel(this.time);
 
         // Define the line section by blocks.
+        this.lineSection = [];
         for (var k in frame.blockMap) {
             var block = frame.blockMap[k];
             var lineSection = {
@@ -212,16 +288,16 @@ function TimeLine() {
                 endY: block.bottom,
             }
             this.lineSection.push(lineSection);
-        }
+        }            
 
         // Define the line type by the time.
-        if (time % 3600 == 0) {
+        if (this.time % 3600 == 0) {
             this.lineType = 'hour';
         }
-        else if (time % 1800 == 0) {
+        else if (this.time % 1800 == 0) {
             this.lineType = '_30min';
         }
-        else if (time % 600 == 0) {
+        else if (this.time % 600 == 0) {
             this.lineType = '_10min';
         }
     }
@@ -564,54 +640,3 @@ function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView){
     }
 }
 
-// The main function for reflash the diagram
-
-function display(cxt) {
-    // Fill the background
-    cxt.fillStyle = frame.style.background;
-    c.clientWidth
-    cxt.fillRect(0, 0, c.clientWidth, c.clientHeight);
-
-    // draw diagram.
-    for (var k in frame.blockMap) {
-        frame.blockMap[k].draw(cxt);
-    }
-
-    for (var tl in frame.timeLineList) {
-        frame.timeLineList[tl].draw(cxt);
-    }
-
-    for (var tr in frame.trainViewMap) {
-        frame.trainViewMap[tr].draw(cxt);
-    }
-}
-
-
-// Update the whole train diagram.
-
-function updateView() {
-
-    // Update the position of blocks and station views.
-
-    var currentY = frame.orgPosition.Y;
-
-    for (var k in frame.blockMap) {
-        var block = frame.blockMap[k];
-        block.update(currentY);
-        currentY = block.bottom + block.margin;
-    }
-
-    // Update the time lines.
-    for (var t = 0; t < frame.totalTimeInSecond;
-        t += frame.style.timeLineStepSize[frame.displaySettings.timeLineMode]) {
-        var tl = new TimeLine();
-        tl.update(t);
-        frame.timeLineList.push(tl);
-    }
-
-    // Update train views.
-    for (var trvIdx in frame.trainViewMap) {
-        var trView = frame.trainViewMap[trvIdx];
-        trView.update();
-    }
-}
