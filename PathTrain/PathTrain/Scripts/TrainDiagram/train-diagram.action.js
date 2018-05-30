@@ -3,86 +3,50 @@
 function mouseMove(e) {
     // location display
     var div = document.getElementById('coordinate');
-    var infoDiv = document.getElementById('info');
 
     var x = e.offsetX;
     var y = e.offsetY;
     div.innerText = 'Current mouse location:(' + x + ',' + y + '). ' + 'Time:' + frame.pixelToSecond(x);
 
-    var isDiagramChanged = false;
-
-    // hit test
-    var stationHitResult = stationViewHit({ 'X': x, 'Y': y });
-    var trainHitResult = trainViewHit({ 'X': x, 'Y': y });
-    var timeStampHitResult = timeStampViewHit({ 'X': x, 'Y': y });
-
-    // set or remove hit status
-    if (stationHitResult != frame.hitStationView) {
-        if (frame.hitStationView != null && frame.hitStationView.status != "selected") {
-            frame.hitStationView.status = "normal";
-        }
-        frame.hitStationView = stationHitResult;
-        if (stationHitResult != null && stationHitResult.status != "selected") {
-            stationHitResult.status = "hit";
-            infoDiv.innerText = 'Station view:' + stationHitResult.stationObj.name;
-        }
-        isDiagramChanged = true;
-    }
-    if (trainHitResult != frame.hitTrainView) {
-        if (frame.hitTrainView != null && frame.hitTrainView.status != "selected") {
-            frame.hitTrainView.status = "normal";
-        }
-        frame.hitTrainView = trainHitResult;
-        if (trainHitResult != null && trainHitResult.status != "selected") {
-            trainHitResult.status = "hit";
-            infoDiv.innerText = 'Train view:' + trainHitResult.trainObj.id;
-        }
-        isDiagramChanged = true;
-    }
-    if (timeStampHitResult != frame.hitTimeStampView) {
-        if (frame.hitTimeStampView != null) {
-            frame.hitTimeStampView.status = "normal";
-        }
-        frame.hitTimeStampView = timeStampHitResult;
-        if (timeStampHitResult != null) {
-            timeStampHitResult.status = "hit";
-            infoDiv.innerText = 'Time stamp view:' + timeStampHitResult.trainView.trainObj.id + '--' + model.station_map[timeStampHitResult.timeStamp.station].name + '-' + timeStampHitResult.timeStamp.operation + ':' + timeStampHitResult.timeStamp.time;
-        }
-        isDiagramChanged = true;
+    if (frame.isAllowMoving) {
+        moveDiagram_move({ 'x': x, 'y': y });
+        return;
     }
 
-    // redraw the diagram
-    if (isDiagramChanged)
-        frame.display(cxt);
+    globalHit({ 'x': x, 'y': y });
+    
 }
 
-// global mouseclick response function
+// global mouse click response function
 
 function mouseLeftClick(e) {
     var x = e.offsetX;
     var y = e.offsetY;
 
-    var infoDiv = document.getElementById('info');
-
-    var trainSelectResult = trainViewSelect({ 'X': x, 'Y': y });
-
-    if (trainSelectResult != frame.selectedTrainView) {
-
-        if (trainSelectResult != null) {
-            trainSelectResult.status = "selected";
-        }
-        if (frame.selectedTrainView != null) {
-            frame.selectedTrainView.status = "normal";
-        }
-        frame.selectedTrainView = trainSelectResult;
-        if (trainSelectResult != null) {
-            infoDiv.innerText = 'Selected Train view:' + trainSelectResult.trainObj.id;
-        }
+    if (frame.isAllowMoving) {
+        return;
     }
 
-    frame.display(cxt);
+    globalSelect({ 'x': x, 'y': y });
 }
 
+// global mouse down response function
+
+function mouseDown(e) {
+    if (frame.isAllowMoving) {
+        moveDiagram_down({ 'x': e.offsetX, 'y': e.offsetY });
+        return;
+    }
+}
+
+// global mouse up response function
+
+function mouseUp(e) {
+    if (frame.isAllowMoving) {
+        moveDiagram_up({ 'x': e.offsetX, 'y': e.offsetY });
+        return;
+    }
+}
 
 // A general line hit test function.
 
@@ -167,6 +131,57 @@ function timeStampViewHitTest(mouseLocation) {
     return hitTimeStampView;
 }
 
+function globalHit(location) {
+
+    var div = document.getElementById('coordinate');
+    var infoDiv = document.getElementById('info');
+    var isDiagramChanged = false;
+
+    // hit test
+    var stationHitResult = stationViewHit({ 'X': location.x, 'Y': location.y });
+    var trainHitResult = trainViewHit({ 'X': location.x, 'Y': location.y });
+    var timeStampHitResult = timeStampViewHit({ 'X': location.x, 'Y': location.y });
+
+    // set or remove hit status
+    if (stationHitResult != frame.hitStationView) {
+        if (frame.hitStationView != null && frame.hitStationView.status != "selected") {
+            frame.hitStationView.status = "normal";
+        }
+        frame.hitStationView = stationHitResult;
+        if (stationHitResult != null && stationHitResult.status != "selected") {
+            stationHitResult.status = "hit";
+            infoDiv.innerText = 'Station view:' + stationHitResult.stationObj.name;
+        }
+        isDiagramChanged = true;
+    }
+    if (trainHitResult != frame.hitTrainView) {
+        if (frame.hitTrainView != null && frame.hitTrainView.status != "selected") {
+            frame.hitTrainView.status = "normal";
+        }
+        frame.hitTrainView = trainHitResult;
+        if (trainHitResult != null && trainHitResult.status != "selected") {
+            trainHitResult.status = "hit";
+            infoDiv.innerText = 'Train view:' + trainHitResult.trainObj.id;
+        }
+        isDiagramChanged = true;
+    }
+    if (timeStampHitResult != frame.hitTimeStampView) {
+        if (frame.hitTimeStampView != null) {
+            frame.hitTimeStampView.status = "normal";
+        }
+        frame.hitTimeStampView = timeStampHitResult;
+        if (timeStampHitResult != null) {
+            timeStampHitResult.status = "hit";
+            infoDiv.innerText = 'Time stamp view:' + timeStampHitResult.trainView.trainObj.id + '--' + model.station_map[timeStampHitResult.timeStamp.station].name + '-' + timeStampHitResult.timeStamp.operation + ':' + timeStampHitResult.timeStamp.time;
+        }
+        isDiagramChanged = true;
+    }
+
+    // redraw the diagram
+    if (isDiagramChanged)
+        frame.display(cxt);
+}
+
 function stationViewHit(mouseLocation) {
     var hitTestResult = stationViewHitTest(mouseLocation);
     if (hitTestResult != null) {
@@ -188,6 +203,30 @@ function timeStampViewHit(mouseLocation) {
     return hitTestResult;
 }
 
+function globalSelect(location)
+{
+    var infoDiv = document.getElementById('info');
+
+    var trainSelectResult = trainViewSelect({ 'X': location.x, 'Y': location.y });
+
+    if (trainSelectResult != frame.selectedTrainView) {
+
+        if (trainSelectResult != null) {
+            trainSelectResult.status = "selected";
+        }
+        if (frame.selectedTrainView != null) {
+            frame.selectedTrainView.status = "normal";
+        }
+        frame.selectedTrainView = trainSelectResult;
+        if (trainSelectResult != null) {
+            infoDiv.innerText = 'Selected Train view:' + trainSelectResult.trainObj.id;
+        }
+    }
+
+    frame.display(cxt);
+}
+
+
 function trainViewSelect(mouseLocation) {
     var hitTestResult = trainViewHitTest(mouseLocation);
     if (hitTestResult != null) {
@@ -195,3 +234,24 @@ function trainViewSelect(mouseLocation) {
     return hitTestResult;
 }
 
+// move the whole diagram
+
+function moveDiagram_down(beginLocation){
+    frame.isMoving = true;
+    frame.beginMovingLocation = beginLocation;
+}
+
+function moveDiagram_move(currentLocation) {
+    if (!frame.isMoving)
+        return;
+    frame.orgPosition.X = (frame.orgPosition.X + currentLocation.x - frame.beginMovingLocation.x);
+    frame.orgPosition.Y = (frame.orgPosition.Y + currentLocation.y - frame.beginMovingLocation.y);
+    frame.beginMovingLocation = currentLocation;
+    frame.updateView();
+    frame.display(cxt);
+}
+
+function moveDiagram_up(endLocation) {
+    frame.isMoving = false;
+    frame.beginMovingLocation = null;
+}

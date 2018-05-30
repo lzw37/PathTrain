@@ -10,7 +10,8 @@
 <body>
     <canvas id="train_diagram" width="1600" height="800"
         style="margin-left: auto; margin-right: auto; display: block;"
-        onmousemove="mouseMove(event)" onclick="mouseLeftClick(event)"></canvas>
+        onmousemove="mouseMove(event)" onclick="mouseLeftClick(event)" 
+        onmousedown="mouseDown(event)" onmouseup="mouseUp(event)"></canvas>
 
     <div id="info"></div>
     <div id="coordinate"></div>
@@ -26,7 +27,7 @@
         Y
         <input type="range" name="position_Y" id="position_Y" min="1" max="100" step="1" value="1" />
 
-        <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false">
+        <button type="button" name="btn-move-by-mouse" id="btn-move-by-mouse" class="btn btn-primary" data-toggle="button" aria-pressed="false">
             Move by Mouse
         </button>
         <button type="button" class="btn btn-primary">

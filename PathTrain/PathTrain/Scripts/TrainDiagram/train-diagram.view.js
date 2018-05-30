@@ -135,17 +135,20 @@ function Frame(size) {
     }
 
     // Transfer seconds back to pixel value (X coordinate).
+
     this.secondToPixel = function (second) {
         return Math.round(this.orgPosition.X + this.zoomRatio.horizontial * second) + 0.5;
     }
 
     // action vars of the frame
+
     this.hitTrainView = null;
     this.hitStationView = null;
     this.hitTimeStampView = null;
     this.selectedTrainView = null;
 
-    // display ratio function
+    // display ratio setting / getting function
+
     this.getDisplayRatio_X = function(){
         return this.zoomRatio.horizontial;
     }
@@ -159,7 +162,8 @@ function Frame(size) {
         this.zoomRatio.vertical = value / 20;
     }
 
-    // position function
+    // position setting / getting function
+
     this.getDisplayPosition_X = function () {
         return this.orgPosition.X;
     }
@@ -173,7 +177,15 @@ function Frame(size) {
         this.orgPosition.Y = parseInt(value) * 20;
     }
 
+    // move diagram status
+
+    this.isAllowMoving = false;
+    this.isMoving = false;
+    this.beginMovingLocation = null;
+
+
     // The main function for reflash the diagram
+
     this.display = function (cxt) {
         // Fill the background
         cxt.fillStyle = this.style.background;

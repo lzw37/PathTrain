@@ -85,12 +85,12 @@ function paint() {
 // controls
 
 // range control
+
 $('input[type="range"]').on('input', function (e) {
     var value = e.target.value;
     document.getElementById('info').innerHTML = value;
 
-    switch(e.target.id)
-    {
+    switch (e.target.id) {
         case 'ratio_X': {
             frame.setDisplayRatio_X(value);
             document.getElementById('info').innerHTML = value;
@@ -113,7 +113,16 @@ $('input[type="range"]').on('input', function (e) {
         }
     }
     paint();
-})
+});
+
+// mouse move control
+
+$('#btn-move-by-mouse').on('click', function (e) {
+    if (!frame.isAllowMoving)
+        frame.isAllowMoving = true;
+    else
+        frame.isAllowMoving = false;
+});
 
 
 // The main procedure..
