@@ -124,6 +124,11 @@ $('#btn-move-by-mouse').on('click', function (e) {
         frame.isAllowMoving = false;
 });
 
+// panorama
+
+$('#btn-panorama').on('click', function (e) {
+    panorama();
+});
 
 // The main procedure..
 

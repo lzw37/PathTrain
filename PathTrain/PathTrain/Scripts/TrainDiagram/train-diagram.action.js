@@ -76,7 +76,6 @@ function lineHitTest(mouseLocation, radius, line) {
         return false;
 }
 
-
 // Global station view hit test.
 
 function stationViewHitTest(mouseLocation) {
@@ -92,7 +91,6 @@ function stationViewHitTest(mouseLocation) {
     }
     return hitStationView;
 }
-
 
 // Global train view hit test.
 
@@ -127,9 +125,10 @@ function timeStampViewHitTest(mouseLocation) {
             }
         }
     }
-
     return hitTimeStampView;
 }
+
+// global hit function
 
 function globalHit(location) {
 
@@ -203,6 +202,8 @@ function timeStampViewHit(mouseLocation) {
     return hitTestResult;
 }
 
+// global select function
+
 function globalSelect(location)
 {
     var infoDiv = document.getElementById('info');
@@ -225,7 +226,6 @@ function globalSelect(location)
 
     frame.display(cxt);
 }
-
 
 function trainViewSelect(mouseLocation) {
     var hitTestResult = trainViewHitTest(mouseLocation);
@@ -254,4 +254,19 @@ function moveDiagram_move(currentLocation) {
 function moveDiagram_up(endLocation) {
     frame.isMoving = false;
     frame.beginMovingLocation = null;
+}
+
+// panorama view
+
+function panorama() {
+    var width = c.getAttribute('width');
+    var height = c.getAttribute('height');
+
+    frame.orgPosition = { 'X': frame.margin.left, 'Y': frame.margin.top };
+
+    var ratio_x = (width - frame.margin.left - frame.margin.right) / frame.totalTimeInSecond;
+
+    frame.zoomRatio.horizontial = ratio_x;
+    frame.updateView();
+    frame.display(cxt);
 }

@@ -99,6 +99,7 @@ function Frame(size) {
     };
 
     this.totalTimeInSecond = 86400;  // The total length of the time horizon (in seconds).
+    this.totalDiagramMile = 0;
 
     // Full diagram rectangle
     var currentFrame = this;
@@ -214,12 +215,12 @@ function Frame(size) {
         // Update the position of blocks and station views.
 
         var currentY = this.orgPosition.Y;
-
         for (var k in this.blockMap) {
             var block = this.blockMap[k];
             block.update(currentY);
             currentY = block.bottom + block.margin;
         }
+        currentY = currentY - block.margin;
 
         // Update the time lines.
         for (var tl in this.timeLineList) {
