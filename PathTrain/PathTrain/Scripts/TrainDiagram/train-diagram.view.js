@@ -72,6 +72,11 @@ function DisplayStyle() {
         radius: 4,
         width: 1
     }
+
+    this.customRectangleStyle = {
+        lineWidth: 2,
+        color: '#000000',
+    }
 }
 
 
@@ -99,7 +104,7 @@ function Frame(size) {
     };
 
     this.totalTimeInSecond = 86400;  // The total length of the time horizon (in seconds).
-    this.totalDiagramMile = 0;
+    this.totalDiagramMiles = 0;
 
     // Full diagram rectangle
     var currentFrame = this;
@@ -184,6 +189,11 @@ function Frame(size) {
     this.isMoving = false;
     this.beginMovingLocation = null;
 
+    // custom zoom status
+    this.isAllowCustomZoom = false;
+    this.isCustomZooming = false;
+    this.beginZoomingLocation = null;
+
 
     // The main function for reflash the diagram
 
@@ -215,12 +225,14 @@ function Frame(size) {
         // Update the position of blocks and station views.
 
         var currentY = this.orgPosition.Y;
+        this.totalDiagramMiles = 0;
         for (var k in this.blockMap) {
             var block = this.blockMap[k];
             block.update(currentY);
-            currentY = block.bottom + block.margin;
+            currentY = block.bottom + block.marginForMiles * frame.zoomRatio.vertical;
+            this.totalDiagramMiles += block.totalMiles;
         }
-        currentY = currentY - block.margin;
+        currentY = currentY - block.marginForMiles;
 
         // Update the time lines.
         for (var tl in this.timeLineList) {
@@ -252,7 +264,7 @@ function Block(id) {
     this.stationViewList = [];  // Station view list of the block.
 
     // Position attributes
-    this.margin = 80;  // Margin size for this block in the top and the bottom.
+    this.marginForMiles = 30;  // Margin size for this block in the top and the bottom.
     this.top = 0;
     this.bottom = 0;
     this.left = function () {
@@ -261,7 +273,7 @@ function Block(id) {
     this.right = function () {
         return frame.orgPosition.X + frame.totalTimeInSecond * frame.zoomRatio.horizontial;
     }
-
+    this.totalMiles = 0;
     // update parameters of the current block and its children elements.
     this.update = function (currentY) {
         this.top = currentY;
@@ -269,8 +281,9 @@ function Block(id) {
             this.stationViewList[s].update(currentY);
         }
         this.bottom = this.stationViewList[this.stationViewList.length - 1].Y;
+        this.totalMiles = parseFloat(this.stationViewList[s].milesInBlock);
+        this.totalMiles += this.marginForMiles;
     }
-
     // draw the block and its elements.
     this.draw = function (cxt) {
         for (var s in this.stationViewList) {

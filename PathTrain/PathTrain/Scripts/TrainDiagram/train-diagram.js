@@ -130,6 +130,15 @@ $('#btn-panorama').on('click', function (e) {
     panorama();
 });
 
+// custom zoom
+
+$('#btn-custom-zoom').on('click', function (e) {
+    if (!frame.isAllowCustomZoom)
+        frame.isAllowCustomZoom = true;
+    else
+        frame.isAllowCustomZoom = false;
+})
+
 // The main procedure..
 
 input_data_handler();

@@ -8,13 +8,18 @@ function mouseMove(e) {
     var y = e.offsetY;
     div.innerText = 'Current mouse location:(' + x + ',' + y + '). ' + 'Time:' + frame.pixelToSecond(x);
 
+    if (frame.isAllowCustomZoom) {
+        customZoom_move({ 'x': x, 'y': y });
+        return;
+    }
+
     if (frame.isAllowMoving) {
         moveDiagram_move({ 'x': x, 'y': y });
         return;
     }
 
     globalHit({ 'x': x, 'y': y });
-    
+
 }
 
 // global mouse click response function
@@ -23,16 +28,16 @@ function mouseLeftClick(e) {
     var x = e.offsetX;
     var y = e.offsetY;
 
-    if (frame.isAllowMoving) {
-        return;
-    }
-
     globalSelect({ 'x': x, 'y': y });
 }
 
 // global mouse down response function
 
 function mouseDown(e) {
+    if (frame.isAllowCustomZoom) {
+        customZoom_down({ 'x': e.offsetX, 'y': e.offsetY });
+        return;
+    }
     if (frame.isAllowMoving) {
         moveDiagram_down({ 'x': e.offsetX, 'y': e.offsetY });
         return;
@@ -42,6 +47,10 @@ function mouseDown(e) {
 // global mouse up response function
 
 function mouseUp(e) {
+    if (frame.isAllowCustomZoom) {
+        customZoom_up({ 'x': e.offsetX, 'y': e.offsetY });
+        return;
+    }
     if (frame.isAllowMoving) {
         moveDiagram_up({ 'x': e.offsetX, 'y': e.offsetY });
         return;
@@ -58,7 +67,7 @@ function lineHitTest(mouseLocation, radius, line) {
     if (mouseLocation.X < line.endX - radius && mouseLocation.X < line.startX + radius)
         return false;
 
-    if (mouseLocation.Y > line.endY + radius  && mouseLocation.Y > line.startY - radius)
+    if (mouseLocation.Y > line.endY + radius && mouseLocation.Y > line.startY - radius)
         return false;
     if (mouseLocation.Y < line.endY - radius && mouseLocation.Y < line.startY + radius)
         return false;
@@ -204,8 +213,7 @@ function timeStampViewHit(mouseLocation) {
 
 // global select function
 
-function globalSelect(location)
-{
+function globalSelect(location) {
     var infoDiv = document.getElementById('info');
 
     var trainSelectResult = trainViewSelect({ 'X': location.x, 'Y': location.y });
@@ -236,7 +244,7 @@ function trainViewSelect(mouseLocation) {
 
 // move the whole diagram
 
-function moveDiagram_down(beginLocation){
+function moveDiagram_down(beginLocation) {
     frame.isMoving = true;
     frame.beginMovingLocation = beginLocation;
 }
@@ -262,11 +270,103 @@ function panorama() {
     var width = c.getAttribute('width');
     var height = c.getAttribute('height');
 
+    // update original position
     frame.orgPosition = { 'X': frame.margin.left, 'Y': frame.margin.top };
 
+    // update horizontial ratio
     var ratio_x = (width - frame.margin.left - frame.margin.right) / frame.totalTimeInSecond;
 
+    // update vertical ratio
+    var blockMarginSum = 0;
+    for (var b in frame.blockMap) {
+        blockMarginSum += frame.blockMap[b].margin
+    }
+    blockMarginSum -= frame.blockMap[b].margin;
+    var ratio_y = (height - frame.margin.top - frame.margin.bottom) / frame.totalDiagramMiles;
+
     frame.zoomRatio.horizontial = ratio_x;
+    frame.zoomRatio.vertical = ratio_y;
     frame.updateView();
     frame.display(cxt);
+}
+
+// custom zoom
+
+function customZoom_down(beginLocation) {
+    frame.isCustomZooming = true;
+    frame.beginZoomingLocation = beginLocation;
+}
+
+function customZoom_up(endLocation) {
+    if(!frame.isCustomZooming)
+        return;
+    customZoom_execute(frame.beginZoomingLocation, endLocation);
+    frame.isCustomZooming = false;
+    frame.beginZoomingLocation = null;
+    frame.updateView();
+    frame.display(cxt);
+    //frame.isAllowCustomZoom = false;
+}
+
+function customZoom_drawRectangle(beginLocation, endLocation, cxt) {
+
+    var zoomRect = customZoom_generateRectangle(beginLocation, endLocation);
+
+    cxt.strokeStyle = frame.style.customRectangleStyle.color;
+    cxt.lineWidth = frame.style.customRectangleStyle.lineWidth;
+    cxt.beginPath();
+    cxt.rect(zoomRect.x, zoomRect.y, zoomRect.width, zoomRect.height);
+    cxt.stroke();
+}
+
+function customZoom_generateRectangle(beginLocation, endLocation){
+    var zoomRect = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0
+    }
+
+    if (endLocation.x >= beginLocation.x) {
+        zoomRect.x = beginLocation.x;
+        zoomRect.width = endLocation.x - beginLocation.x;
+    }
+    else {
+        zoomRect.x = endLocation.x;
+        zoomRect.width = beginLocation.x - endLocation.x;
+    }
+    if (endLocation.y >= beginLocation.y) {
+        zoomRect.y = beginLocation.y;
+        zoomRect.height = endLocation.y - beginLocation.y;
+    }
+    else {
+
+        zoomRect.y = endLocation.y;
+        zoomRect.height = beginLocation.y - endLocation.y;
+    }
+    return zoomRect;
+}
+
+function customZoom_execute(beginLocation, endLocation) {
+
+    var width = c.getAttribute('width');
+    var height = c.getAttribute('height');
+
+    var zoomRect = customZoom_generateRectangle(beginLocation, endLocation);
+
+    var newHorizontial = width / zoomRect.width * frame.zoomRatio.horizontial;
+    var newVertical = height / zoomRect.height * frame.zoomRatio.vertical;
+
+    frame.orgPosition.X -= (beginLocation.x - frame.orgPosition.X) / frame.zoomRatio.horizontial * newHorizontial - (frame.orgPosition.X);
+    frame.orgPosition.Y -= (beginLocation.y - frame.orgPosition.Y) / frame.zoomRatio.vertical * newVertical - (frame.orgPosition.Y);
+
+    frame.zoomRatio.vertical = newVertical;
+    frame.zoomRatio.horizontial = newHorizontial;
+}
+
+function customZoom_move(currentLocation) {
+    if (!frame.isCustomZooming)
+        return;
+    frame.display(cxt);
+    customZoom_drawRectangle(frame.beginZoomingLocation, currentLocation, cxt);
 }
