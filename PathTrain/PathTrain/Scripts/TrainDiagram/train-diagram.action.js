@@ -340,7 +340,6 @@ function customZoom_generateRectangle(beginLocation, endLocation){
         zoomRect.height = endLocation.y - beginLocation.y;
     }
     else {
-
         zoomRect.y = endLocation.y;
         zoomRect.height = beginLocation.y - endLocation.y;
     }
@@ -357,8 +356,8 @@ function customZoom_execute(beginLocation, endLocation) {
     var newHorizontial = width / zoomRect.width * frame.zoomRatio.horizontial;
     var newVertical = height / zoomRect.height * frame.zoomRatio.vertical;
 
-    frame.orgPosition.X -= (beginLocation.x - frame.orgPosition.X) / frame.zoomRatio.horizontial * newHorizontial - (frame.orgPosition.X);
-    frame.orgPosition.Y -= (beginLocation.y - frame.orgPosition.Y) / frame.zoomRatio.vertical * newVertical - (frame.orgPosition.Y);
+    frame.orgPosition.X = frame.orgPosition.X - (zoomRect.x - frame.orgPosition.X) / frame.zoomRatio.horizontial * newHorizontial;
+    frame.orgPosition.Y = frame.orgPosition.Y - (zoomRect.y - frame.orgPosition.Y) / frame.zoomRatio.vertical * newVertical;
 
     frame.zoomRatio.vertical = newVertical;
     frame.zoomRatio.horizontial = newHorizontial;
