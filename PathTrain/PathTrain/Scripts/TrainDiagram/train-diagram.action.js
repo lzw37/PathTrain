@@ -19,7 +19,6 @@ function mouseMove(e) {
     }
 
     globalHit({ 'x': x, 'y': y });
-
 }
 
 // global mouse click response function
@@ -335,6 +334,7 @@ function customZoom_generateRectangle(beginLocation, endLocation){
         zoomRect.x = endLocation.x;
         zoomRect.width = beginLocation.x - endLocation.x;
     }
+
     if (endLocation.y >= beginLocation.y) {
         zoomRect.y = beginLocation.y;
         zoomRect.height = endLocation.y - beginLocation.y;
@@ -343,6 +343,7 @@ function customZoom_generateRectangle(beginLocation, endLocation){
         zoomRect.y = endLocation.y;
         zoomRect.height = beginLocation.y - endLocation.y;
     }
+
     return zoomRect;
 }
 
