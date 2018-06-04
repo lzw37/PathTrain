@@ -73,6 +73,8 @@ function DisplayStyle() {
         width: 1
     }
 
+    this.trainIDMaxWidth = 40;
+
     this.customRectangleStyle = {
         lineWidth: 2,
         color: '#000000',
@@ -245,6 +247,33 @@ function Frame(size) {
             var trView = this.trainViewMap[trvIdx];
             trView.update();
         }
+
+        // Update train id label distance
+        this.updateTrainIDLabel();
+    }
+
+    this.updateTrainIDLabel = function () {
+
+        var fixTrainView = [];
+        var candidateTrainView = [];
+        this.trainViewMap.forEach(function (value, key, map) {
+            candidateTrainView.push(value);
+        });
+
+        while (candidateTrainView.length != 0) {
+            candidateTrainView.forEach(function (element1, index1, array1) {
+                fixTrainView.forEach(function (element2, index2, array2) {
+                    // conflict free
+                    if (true) {
+                        fixTrainView.push(element1);
+                        candidateTrainView.delete(element1);
+                    }
+                });
+            })
+            candidateTrainView.forEach(function (element, index, array) {
+                element.increaseTrainIDDistance();
+            })
+        }
     }
 }
 
@@ -406,6 +435,8 @@ function TrainView(id, trainObj) {
 
     this.status = 'normal';
 
+    this.trainIDDistance = 0;
+
     this.generate = function () {
         // generate the relative timeStampViewList by the trainObj.timeStampList
         for (var stampIdx in trainObj.timeTable) {
@@ -489,19 +520,33 @@ function TrainView(id, trainObj) {
     }
 
     this.update = function () {
+
+        // update train ID distance
+        this.trainIDDistance = 10;
+
+        // update time stamp view
         for (var tsvIdx in this.timeStampViewList) {
             var tsv = this.timeStampViewList[tsvIdx];
             tsv.update();
         }
     }
 
+    this.increaseTrainIDDistance = function () {
+        this.trainIDDistance += 10;
+    }
+
     this.draw = function (cxt) {
-        // draw a sectional path by the time stamps.
+      
         var currentTrainViewStyle = frame.trainViewStyle
         cxt.beginPath();
         cxt.lineWidth = frame.style.trainViewStyle.width[this.status][this.trainObj.type];
         cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainObj.type];
         cxt.fillStyle = frame.style.trainViewStyle.color[this.trainObj.type];
+
+        // draw train name
+        this.drawTrainName(cxt);
+
+        // draw a sectional path by the time stamps.
         for (var l in this.pathList){
             this.pathList[l].draw(cxt);
         }
@@ -513,6 +558,38 @@ function TrainView(id, trainObj) {
             this.drawTimeStampViews(cxt);
         }
     }
+
+    this.drawTrainName = function (cxt) {
+
+        var firstTsv = this.timeStampViewList[0];
+        var x = firstTsv.X;
+
+        var textBaseLine = 0;
+        var textMaxWidth = frame.style.trainIDMaxWidth;
+        var y = 0;
+        if (this.timeStampViewList[1] != null &&
+            this.timeStampViewList[2] != null &&
+            this.timeStampViewList[1].Y < this.timeStampViewList[2].Y){
+            y = firstTsv.Y - this.trainIDDistance;
+            textBaseLine = y - 3;
+        }
+        else {
+            y = firstTsv.Y + this.trainIDDistance;
+            textBaseLine = y + 15;
+        }
+
+        // draw the label
+        cxt.moveTo(x - textMaxWidth / 2, y);
+        cxt.lineTo(x + textMaxWidth / 2, y);
+        cxt.moveTo(firstTsv.X, firstTsv.Y);
+        cxt.lineTo(firstTsv.X, y);
+
+        // fill text
+        cxt.font = "15px Helvetica";
+        cxt.fillText(this.trainObj.id, x - textMaxWidth / 2, textBaseLine, textMaxWidth);
+    }
+
+
 
     this.drawTimeStampViews = function (cxt) {
         cxt.beginPath();
