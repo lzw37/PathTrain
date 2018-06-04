@@ -45,7 +45,7 @@ function DisplayStyle() {
             'G': '#ff0000'
         },
         width: {
-            normal:{
+            normal: {
                 'G': '2'
             },
             hit: {
@@ -66,7 +66,7 @@ function DisplayStyle() {
         color: {
             'G': '#ff0000'
         },
-        fillColor:{
+        fillColor: {
             'hit': '#ffffff'
         },
         radius: 4,
@@ -157,7 +157,7 @@ function Frame(size) {
 
     // display ratio setting / getting function
 
-    this.getDisplayRatio_X = function(){
+    this.getDisplayRatio_X = function () {
         return this.zoomRatio.horizontial;
     }
     this.setDisplayRatio_X = function (value) {
@@ -219,7 +219,6 @@ function Frame(size) {
         }
     }
 
-
     // Update the whole train diagram.
 
     this.updateView = function () {
@@ -252,28 +251,42 @@ function Frame(size) {
         this.updateTrainIDLabel();
     }
 
+    // update the position of the train ID
+
     this.updateTrainIDLabel = function () {
-
-        var fixTrainView = [];
-        var candidateTrainView = [];
-        this.trainViewMap.forEach(function (value, key, map) {
-            candidateTrainView.push(value);
-        });
-
-        while (candidateTrainView.length != 0) {
-            candidateTrainView.forEach(function (element1, index1, array1) {
-                fixTrainView.forEach(function (element2, index2, array2) {
-                    // conflict free
-                    if (true) {
-                        fixTrainView.push(element1);
-                        candidateTrainView.delete(element1);
-                    }
-                });
-            })
-            candidateTrainView.forEach(function (element, index, array) {
-                element.increaseTrainIDDistance();
-            })
+        var fixTsvList = [];
+        var candidateTsvList = [];
+        for (var tsv in this.trainViewMap) {
+            candidateTsvList.push(this.trainViewMap[tsv]);
         }
+
+        var i = 0;
+
+        while (candidateTsvList.length != 0) {
+            if (!this.isConflict(candidateTsvList[i], fixTsvList)) {
+                fixTsvList.push(candidateTsvList[i]);
+                candidateTsvList.splice(i, 1);
+            }
+            else {
+                i++;
+            }
+            if (i == candidateTsvList.length) {
+                for (var tsv in candidateTsvList) {
+                    candidateTsvList[tsv].increaseTrainIDDistance();
+                }
+                i = 0;
+            }
+        }
+    }
+
+    this.isConflict = function (tsv, fixTsvList) {
+        for (var tsv2Idx in fixTsvList) {
+            if (tsv.timeStampViewList[0].stationView == fixTsvList[tsv2Idx].timeStampViewList[0].stationView &&
+                tsv.trainIDDistance == fixTsvList[tsv2Idx].trainIDDistance &&
+                Math.abs(tsv.timeStampViewList[0].X - fixTsvList[tsv2Idx].timeStampViewList[0].X) < frame.style.trainIDMaxWidth)
+                return true;
+        }
+        return false;
     }
 }
 
@@ -343,7 +356,7 @@ function TimeLine(t) {
                 endY: block.bottom,
             }
             this.lineSection.push(lineSection);
-        }            
+        }
 
         // Define the line type by the time.
         if (this.time % 3600 == 0) {
@@ -453,13 +466,13 @@ function TrainView(id, trainObj) {
             }
             else {
                 // more than one station views are found.
-                var currentStaViewCount = 0;  
+                var currentStaViewCount = 0;
                 for (var lId in this.trainObj.lineList) {
                     var l = model.line_map[this.trainObj.lineList[lId]];
                     for (var svId in staViewList) {
                         // select the display StationView by the line list.
                         var staView = staViewList[svId];
-                        if(l == staView.lineObj){
+                        if (l == staView.lineObj) {
                             this.stationViewList.push(staView);
 
                             // the first 'StationView' object is the available one, while the others are virtual ones.
@@ -489,7 +502,7 @@ function TrainView(id, trainObj) {
         var lastTsView = this.timeStampViewList[0];
         for (var i = 1; i < this.timeStampViewList.length; i++) {
             var tsView = this.timeStampViewList[i];
-            if ((lastTsView.type == "available" && tsView.type == "available") || 
+            if ((lastTsView.type == "available" && tsView.type == "available") ||
                 (lastTsView.type == "virtual" && tsView.type == "available")) {  // running line or dwelling line
                 if (lastTsView.timeStamp.operation == "depart" &&
                     tsView.timeStamp.operation == "arrive") {
@@ -522,7 +535,7 @@ function TrainView(id, trainObj) {
     this.update = function () {
 
         // update train ID distance
-        this.trainIDDistance = 10;
+        this.trainIDDistance = 15;
 
         // update time stamp view
         for (var tsvIdx in this.timeStampViewList) {
@@ -532,11 +545,11 @@ function TrainView(id, trainObj) {
     }
 
     this.increaseTrainIDDistance = function () {
-        this.trainIDDistance += 10;
+        this.trainIDDistance += 15;
     }
 
     this.draw = function (cxt) {
-      
+
         var currentTrainViewStyle = frame.trainViewStyle
         cxt.beginPath();
         cxt.lineWidth = frame.style.trainViewStyle.width[this.status][this.trainObj.type];
@@ -547,7 +560,7 @@ function TrainView(id, trainObj) {
         this.drawTrainName(cxt);
 
         // draw a sectional path by the time stamps.
-        for (var l in this.pathList){
+        for (var l in this.pathList) {
             this.pathList[l].draw(cxt);
         }
         cxt.closePath();
@@ -569,7 +582,7 @@ function TrainView(id, trainObj) {
         var y = 0;
         if (this.timeStampViewList[1] != null &&
             this.timeStampViewList[2] != null &&
-            this.timeStampViewList[1].Y < this.timeStampViewList[2].Y){
+            this.timeStampViewList[1].Y < this.timeStampViewList[2].Y) {
             y = firstTsv.Y - this.trainIDDistance;
             textBaseLine = y - 3;
         }
@@ -711,7 +724,7 @@ function DwellingLine(trainView, foreTimeStampView, rareTimeStampView) {
 
 // The over block section of train paths.
 
-function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView){
+function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.trainView = trainView;
     this.foreTimeStampView = foreTimeStampView;
     this.rareTimeStampView = rareTimeStampView;
