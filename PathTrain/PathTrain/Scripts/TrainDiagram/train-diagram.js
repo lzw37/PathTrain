@@ -20,14 +20,16 @@ function input_data_handler() {
 
     // model data
 
-    htmlobj = $.ajax({ url: "Local_Data/model_data.json", async: false });
-    model = JSON.parse(htmlobj.responseText);
-   
-
+    //htmlobj = $.ajax({ url: "Local_Data/model_data.json", async: false });
+    //model = JSON.parse(htmlobj.responseText);
+    model = JSON.parse(model_data);
+    model = model[0];
     // view data
 
-    htmlobj = $.ajax({ url: "Local_Data/view_data.json", async: false });
-    viewdata = JSON.parse(htmlobj.responseText);
+    //htmlobj = $.ajax({ url: "Local_Data/view_data.json", async: false });
+    //viewdata = JSON.parse(htmlobj.responseText);
+    viewdata = JSON.parse(view_data);
+    viewdata = viewdata[0];
 
 
     // style data
