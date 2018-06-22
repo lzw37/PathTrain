@@ -684,6 +684,8 @@ function RunningLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.rareTimeStampView = rareTimeStampView;
 
     this.draw = function (cxt) {
+        if (this.foreTimeStampView.X > this.rareTimeStampView.X)
+            return;
         cxt.moveTo(this.foreTimeStampView.X, this.foreTimeStampView.Y);
         cxt.lineTo(this.rareTimeStampView.X, this.rareTimeStampView.Y);
     }
