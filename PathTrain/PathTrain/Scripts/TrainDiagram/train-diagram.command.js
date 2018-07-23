@@ -16,23 +16,22 @@ function redo() {
 
 function Command() {
     this.proto_do = function () {
-        updateView();
-        display();
+        frame.updateView();
+        frame.display(cxt);
         doneCommandList.push(this);
     }
 
     this.proto_revoke = function () {
-        updateView();
-        display();
-        doneCommandList.remove(this);
+        frame.updateView();
+        frame.display(cxt);
+        doneCommandList.splice(doneCommandList.indexOf(this), 1);
         redoCommandList.push(this);
     }
-    this.redo = function () {
+    this.proto_redo = function () {
         this.do();
-        updateView();
-        display();
-        doneCommandList.push(this);
-        redoCommandList.remove(this);
+        frame.updateView();
+        frame.display(cxt);
+        redoCommandList.splice(redoCommandList.indexOf(this), 1);
     }
 }
 
@@ -54,7 +53,11 @@ function AddCommand(trainObj) {
     this.revoke = function () {
         delete model.train_map[trainObj.id];
         delete frame.trainViewMap[trainObj.id];
-        this.proto_revoke;
+        this.proto_revoke();
+    }
+
+    this.redo = function () {
+        this.proto_redo();
     }
 }
 
@@ -70,7 +73,7 @@ function DeleteCommand(trainObj) {
     this.do = function () {
         delete model.train_map[trainObj.id];
         delete frame.trainViewMap[trainObj.id];
-        this.proto_revoke;
+        this.proto_do();
     }
 
     this.revoke = function () {
@@ -78,7 +81,11 @@ function DeleteCommand(trainObj) {
         var trainView = new TrainView(trainObj.id, trainObj);
         frame.trainViewMap[trainObj.id] = trainView;
         trainView.generate();
-        this.proto_do();
+        this.proto_revoke();
+    }
+
+    this.redo = function () {
+        this.proto_redo();
     }
 }
 

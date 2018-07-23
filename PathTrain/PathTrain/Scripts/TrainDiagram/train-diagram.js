@@ -139,6 +139,64 @@ $('#btn-custom-zoom').on('click', function (e) {
         frame.isAllowCustomZoom = false;
 })
 
+// test add train command
+
+$('#add-command').on('click', function (e) {
+    var trainObj = new Train();
+    trainObj.id = "G3001";
+    trainObj.type = "G";
+    trainObj.originalStation = "0";
+    trainObj.destinationStation = "4";
+    trainObj.lineList = ["0"];
+    trainObj.timeTable.push({
+        "train": "G3001",
+        "station": "0",
+        "time": "6100",
+        "operation": "arrive"
+    });
+    trainObj.timeTable.push({
+        "train": "G3001",
+        "station": "0",
+        "time": "7200",
+        "operation": "depart"
+    });
+    trainObj.timeTable.push({
+        "train": "G3001",
+        "station": "1",
+        "time": "8200",
+        "operation": "arrive"
+    });
+    trainObj.timeTable.push({
+        "train": "G3001",
+        "station": "1",
+        "time": "8900",
+        "operation": "depart"
+    });
+
+    var add_cmd = new AddCommand(trainObj);
+    add_cmd.do();
+});
+
+// test delete train command
+
+$("#delete-command").on('click', function (e) {
+    var delete_cmd = new DeleteCommand(model.train_map["G1003"]);
+    delete_cmd.do();
+});
+
+// revoke the last command.
+$("#revoke-command").on('click', function (e) {
+    if (doneCommandList.length != 0)
+        doneCommandList[doneCommandList.length - 1].revoke();
+})
+
+// redo the latest revoked command.
+
+$("#redo-command").on('click', function (e) {
+    if (redoCommandList.length != 0)
+        redoCommandList[redoCommandList.length - 1].redo();
+})
+
 // The main procedure..
 
 input_data_handler();
