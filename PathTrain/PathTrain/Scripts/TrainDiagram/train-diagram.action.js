@@ -18,6 +18,10 @@ function mouseMove(e) {
         return;
     }
 
+    if (frame.editingTimeStampview != null) {
+        edit_move({ 'x': x, 'y': y })
+        return;
+    }
     globalHit({ 'x': x, 'y': y });
 }
 
@@ -41,6 +45,14 @@ function mouseDown(e) {
         moveDiagram_down({ 'x': e.offsetX, 'y': e.offsetY });
         return;
     }
+    if (frame.selectedTrainView != null) {
+        var hitTimeStampView = timeStampViewHitTest({ 'X': e.offsetX, 'Y': e.offsetY });
+        if (hitTimeStampView != null) {
+            if (frame.selectedTrainView.timeStampViewList.indexOf(hitTimeStampView) != -1)
+                edit_down(hitTimeStampView);
+        }
+        return;
+    }
 }
 
 // global mouse up response function
@@ -52,6 +64,10 @@ function mouseUp(e) {
     }
     if (frame.isAllowMoving) {
         moveDiagram_up({ 'x': e.offsetX, 'y': e.offsetY });
+        return;
+    }
+    if (frame.editingTimeStampview != null) {
+        edit_up({ 'x': e.offsetX, 'y': e.offsetY });
         return;
     }
 }
@@ -369,4 +385,26 @@ function customZoom_move(currentLocation) {
         return;
     frame.display(cxt);
     customZoom_drawRectangle(frame.beginZoomingLocation, currentLocation, cxt);
+}
+
+// Edit timestamps
+
+var editingCommand;
+
+function edit_down(timeStampView) {
+    editingCommand = new EditCommand(frame.selectedTrainView.trainObj, frame.selectedTrainView.trainObj.timeTable);
+    frame.editingTimeStampview = timeStampView;
+}
+
+function edit_move(location) {
+    var currentSecond = frame.pixelToSecond(location.x);
+    frame.editingTimeStampview.timeStamp.time = currentSecond;
+    frame.updateView();
+    frame.display(cxt);
+}
+
+function edit_up(endLocation) {
+    frame.editingTimeStampview = null;
+    editingCommand.do();
+    editingCommand = null;
 }

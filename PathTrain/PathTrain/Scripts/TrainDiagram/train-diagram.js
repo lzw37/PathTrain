@@ -186,15 +186,13 @@ $("#delete-command").on('click', function (e) {
 
 // revoke the last command.
 $("#revoke-command").on('click', function (e) {
-    if (doneCommandList.length != 0)
-        doneCommandList[doneCommandList.length - 1].revoke();
+    revoke();
 })
 
 // redo the latest revoked command.
 
 $("#redo-command").on('click', function (e) {
-    if (redoCommandList.length != 0)
-        redoCommandList[redoCommandList.length - 1].redo();
+    redo();
 })
 
 // The main procedure..

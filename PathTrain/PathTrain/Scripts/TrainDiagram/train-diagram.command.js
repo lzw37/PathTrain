@@ -2,13 +2,13 @@
 var redoCommandList = [];
 
 function revoke() {
-    var cmd = doneCommandList[doneCommandList.length - 1];
-    cmd.revoke();
+    if (doneCommandList.length != 0)
+        doneCommandList[doneCommandList.length - 1].revoke();
 }
 
 function redo() {
-    var cmd = redoCommandList[redoCommandList.length - 1];
-    cmd.redo();
+    if (redoCommandList.length != 0)
+        redoCommandList[redoCommandList.length - 1].redo();
 }
 
 
@@ -43,6 +43,10 @@ function AddCommand(trainObj) {
     this.trainObj = trainObj;
 
     this.do = function () {
+        if (model.train_map[trainObj.id] != null){
+            window.alert("The train " + trainObj.id + "is already exist.");
+            return;
+        }
         model.train_map[trainObj.id] = trainObj;
         var trainView = new TrainView(trainObj.id, trainObj);
         frame.trainViewMap[trainObj.id] = trainView;
@@ -94,14 +98,31 @@ DeleteCommand.prototype = new Command();
 
 // Edit time stamp command
 
-function EditCommand() {
+function EditCommand(trainObj, orgTimetable) {
+
+    this.trainObj = trainObj;
+    var orgTimetableStr = JSON.stringify(orgTimetable);
+    this.orgTimetable = JSON.parse(orgTimetableStr);
+    this.newTimetable = null;
 
     this.do = function () {
-
+        this.newTimetable = JSON.parse(JSON.stringify(this.trainObj.timeTable));
+        this.proto_do();
     }
 
     this.revoke = function () {
+        this.trainObj.timeTable = JSON.parse(JSON.stringify(this.orgTimetable));
+        frame.trainViewMap[this.trainObj.id].generate();
+        this.proto_revoke();
+    }
 
+    this.redo = function () {
+        this.trainObj.timeTable = JSON.parse(JSON.stringify(this.newTimetable));
+        frame.trainViewMap[this.trainObj.id].generate();
+        frame.updateView();
+        frame.display(cxt);
+        doneCommandList.push(this);
+        redoCommandList.splice(redoCommandList.indexOf(this), 1);
     }
 }
 

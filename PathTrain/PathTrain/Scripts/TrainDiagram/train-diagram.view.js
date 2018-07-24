@@ -154,6 +154,7 @@ function Frame(size) {
     this.hitStationView = null;
     this.hitTimeStampView = null;
     this.selectedTrainView = null;
+    this.editingTimeStampView = null;
 
     // display ratio setting / getting function
 
@@ -451,6 +452,11 @@ function TrainView(id, trainObj) {
     this.trainIDDistance = 0;
 
     this.generate = function () {
+
+        this.stationViewList = [];
+        this.timeStampViewList = [];
+        this.pathList = [];
+
         // generate the relative timeStampViewList by the trainObj.timeStampList
         for (var stampIdx in trainObj.timeTable) {
             var sta = model.station_map[trainObj.timeTable[stampIdx].station];
