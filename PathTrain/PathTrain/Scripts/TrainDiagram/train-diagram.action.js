@@ -18,7 +18,7 @@ function mouseMove(e) {
         return;
     }
 
-    if (frame.editingTimeStampview != null) {
+    if (frame.editingTimeStampView != null) {
         edit_move({ 'x': x, 'y': y })
         return;
     }
@@ -49,7 +49,7 @@ function mouseDown(e) {
         var hitTimeStampView = timeStampViewHitTest({ 'X': e.offsetX, 'Y': e.offsetY });
         if (hitTimeStampView != null) {
             if (frame.selectedTrainView.timeStampViewList.indexOf(hitTimeStampView) != -1)
-                edit_down(hitTimeStampView);
+                edit_down(hitTimeStampView, { 'x': e.offsetX, 'y': e.offsetY });
         }
         return;
     }
@@ -66,7 +66,7 @@ function mouseUp(e) {
         moveDiagram_up({ 'x': e.offsetX, 'y': e.offsetY });
         return;
     }
-    if (frame.editingTimeStampview != null) {
+    if (frame.editingTimeStampView != null) {
         edit_up({ 'x': e.offsetX, 'y': e.offsetY });
         return;
     }
@@ -138,9 +138,8 @@ function trainViewHitTest(mouseLocation) {
 function timeStampViewHitTest(mouseLocation) {
     var hitTimeStampView = null;
 
-    for (var trId in frame.trainViewMap) {
-        var trView = frame.trainViewMap[trId];
-
+    if (frame.selectedTrainView != null) {
+        var trView = frame.selectedTrainView;
         for (var tsvId in trView.timeStampViewList) {
             var tsv = trView.timeStampViewList[tsvId];
             if (tsv.hitTest(mouseLocation, 3)) {
@@ -149,6 +148,7 @@ function timeStampViewHitTest(mouseLocation) {
             }
         }
     }
+
     return hitTimeStampView;
 }
 
@@ -390,21 +390,45 @@ function customZoom_move(currentLocation) {
 // Edit timestamps
 
 var editingCommand;
+var editingStartSecond;
 
-function edit_down(timeStampView) {
+function edit_down(timeStampView, startLocation) {
     editingCommand = new EditCommand(frame.selectedTrainView.trainObj, frame.selectedTrainView.trainObj.timeTable);
-    frame.editingTimeStampview = timeStampView;
+    editingStartSecond = frame.pixelToSecond(startLocation.x);
+    frame.editingTimeStampView = timeStampView;
 }
 
 function edit_move(location) {
     var currentSecond = frame.pixelToSecond(location.x);
-    frame.editingTimeStampview.timeStamp.time = currentSecond;
+    frame.editingTimeStampView.timeStamp.time = currentSecond;
+    edit_moveFollowingTimeStamps(currentSecond);
     frame.updateView();
     frame.display(cxt);
 }
 
+function edit_moveFollowingTimeStamps(currentSecond) {
+    var deltaSecond = currentSecond - editingStartSecond;
+    var isTimeStampViewFound = false;
+    for (var i in frame.selectedTrainView.timeStampViewList) {
+        if (!isTimeStampViewFound
+            && frame.selectedTrainView.timeStampViewList[i] != frame.editingTimeStampView)
+            continue;
+        else if (frame.selectedTrainView.timeStampViewList[i] == frame.editingTimeStampView) {
+            isTimeStampViewFound = true;
+            continue;
+        }
+        else {
+            if (frame.selectedTrainView.timeStampViewList[i].type == "virtual")
+                continue;
+            var newTime = parseInt(frame.selectedTrainView.timeStampViewList[i].timeStamp.time) + deltaSecond;
+            frame.selectedTrainView.timeStampViewList[i].timeStamp.time = newTime;
+        }
+    }
+    editingStartSecond = currentSecond;
+}
+
 function edit_up(endLocation) {
-    frame.editingTimeStampview = null;
+    frame.editingTimeStampView = null;
     editingCommand.do();
     editingCommand = null;
 }
