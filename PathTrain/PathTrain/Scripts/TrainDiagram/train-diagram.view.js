@@ -557,7 +557,7 @@ function TrainView(id, trainObj) {
     this.draw = function (cxt) {
 
         var currentTrainViewStyle = frame.trainViewStyle
-        cxt.beginPath();
+        //cxt.beginPath();
         cxt.lineWidth = frame.style.trainViewStyle.width[this.status][this.trainObj.type];
         cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainObj.type];
         cxt.fillStyle = frame.style.trainViewStyle.color[this.trainObj.type];
@@ -569,7 +569,7 @@ function TrainView(id, trainObj) {
         for (var l in this.pathList) {
             this.pathList[l].draw(cxt);
         }
-        cxt.closePath();
+        //cxt.closePath();
         cxt.stroke();
 
         // draw all time stamp views.
@@ -598,10 +598,13 @@ function TrainView(id, trainObj) {
         }
 
         // draw the label
+        cxt.beginPath();
         cxt.moveTo(x - textMaxWidth / 2, y);
         cxt.lineTo(x + textMaxWidth / 2, y);
         cxt.moveTo(firstTsv.X, firstTsv.Y);
         cxt.lineTo(firstTsv.X, y);
+        cxt.closePath();
+        cxt.stroke();
 
         // fill text
         cxt.font = "15px Helvetica";
@@ -692,8 +695,11 @@ function RunningLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.draw = function (cxt) {
         if (this.foreTimeStampView.X > this.rareTimeStampView.X)
             return;
+        cxt.beginPath();
         cxt.moveTo(this.foreTimeStampView.X, this.foreTimeStampView.Y);
         cxt.lineTo(this.rareTimeStampView.X, this.rareTimeStampView.Y);
+        cxt.closePath();
+        cxt.stroke();
     }
 
     this.hitTest = function (mouseLocation, radius) {
@@ -715,8 +721,11 @@ function DwellingLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.rareTimeStampView = rareTimeStampView;
 
     this.draw = function (cxt) {
+        cxt.beginPath();
         cxt.moveTo(this.foreTimeStampView.X, this.foreTimeStampView.Y);
         cxt.lineTo(this.rareTimeStampView.X, this.rareTimeStampView.Y);
+        cxt.closePath();
+        cxt.stroke();
     }
 
     this.hitTest = function (mouseLocation, radius) {
@@ -738,8 +747,7 @@ function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView) {
     this.rareTimeStampView = rareTimeStampView;
 
     this.draw = function (cxt) {
-        cxt.closePath();
-        cxt.stroke();
+        cxt.beginPath();
 
         cxt.lineWidth = frame.style.overBlockLineStyle.width;
         cxt.strokeStyle = frame.style.overBlockLineStyle.color;
@@ -751,7 +759,6 @@ function OverBlockLine(trainView, foreTimeStampView, rareTimeStampView) {
 
         cxt.lineWidth = frame.style.trainViewStyle.width[this.trainView.status][this.trainView.trainObj.type];
         cxt.strokeStyle = frame.style.trainViewStyle.color[this.trainView.trainObj.type];
-        cxt.beginPath();
     }
 
     this.hitTest = function (mouseLocation, radius) {
